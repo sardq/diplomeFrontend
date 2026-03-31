@@ -7,13 +7,11 @@ import Header from './Header';
 import { AuthContent } from './AuthContent';
 
 function App() {
-  const [role, setRole] = useState(null);
   const [email, setEmail] = useState(null);
-  const [is2FAVerified, setIs2FAVerified] = useState(null);
 
   return (
     <div className="App flex flex-col h-screen">
-      <AuthContent.Provider value={{ role, setRole, email, setEmail, is2FAVerified, setIs2FAVerified }}>
+      <AuthContent.Provider value={{ email, setEmail }}>
         <Header pageTitle="Электронный журнал" logoSrc={logo} />
 
         <main className="flex-1 overflow-y-auto mt-20"> 

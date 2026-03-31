@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [emailLogin, setEmailLogin] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const validateFields = () => {
-    if (!email) {
+    if (!emailLogin) {
       setError("Пожалуйста, заполните поле почты.");
       return false;
     }
@@ -16,8 +16,8 @@ export default function LoginPage() {
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError("Введите корректный Email.");
+    if (!emailRegex.test(emailLogin)) {
+      setError("Введите корректный emailLogin.");
       return false;
     }
     if (password.length < 3) {
@@ -33,7 +33,7 @@ export default function LoginPage() {
       const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email:emailLogin, password }),
       });
 
        if (!response.ok) {
@@ -73,8 +73,8 @@ export default function LoginPage() {
         <input
           className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={emailLogin}
+          onChange={(e) => setEmailLogin(e.target.value)}
         />
 
         <input

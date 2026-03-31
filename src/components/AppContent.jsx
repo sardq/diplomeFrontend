@@ -6,7 +6,8 @@ import { AuthContent } from './AuthContent';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import HomePage from './HomePage';
-
+import PreferencesPage from './SurveyPage';
+import ProfilePage from './ProfilePage';
 const decodeToken = (token) => {
   try {
     return jwtDecode(token);
@@ -34,9 +35,9 @@ export default function AppContent() {
     
     if (token) {
       setAuthHeader(token);
-    } else {
+    } 
       setIsLoading(false);
-    }
+    
   }, [navigate, setEmail]);
 
 
@@ -61,7 +62,18 @@ export default function AppContent() {
         path="/register"
         element={<RegisterForm showToast={showToast} setShowToast={setShowToast} />}
       />
-      
+      <Route
+        path="/preferences"
+        element={
+            < PreferencesPage/>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+            <ProfilePage />
+        }
+      />
       <Route
         path="/"
         element={

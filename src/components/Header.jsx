@@ -17,18 +17,40 @@ export default function Header({ email }) {
           <span className="font-semibold text-lg">GameReco</span>
         </div>
 
-
-
         <div className="flex items-center gap-4">
           {token ? (
             <>
               {email && <span className="text-sm text-gray-500 hidden sm:block">{email}</span>}
-              <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">Выйти</button>
+
+              {/* Ссылка на профиль */}
+              <button
+                onClick={() => navigate("/profile")}
+                className="bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition"
+              >
+                Профиль
+              </button>
+
+              <button
+                onClick={logout}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+              >
+                Выйти
+              </button>
             </>
           ) : (
             <>
-              <button onClick={() => navigate("/login")} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">Войти</button>
-              <button onClick={() => navigate("/register")} className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">Регистрация</button>
+              <button
+                onClick={() => navigate("/login")}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+              >
+                Войти
+              </button>
+              <button
+                onClick={() => navigate("/register")}
+                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
+              >
+                Регистрация
+              </button>
             </>
           )}
         </div>
