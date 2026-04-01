@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "./service/api";
 
 export default function HomePage() {
   const [popularGames, setPopularGames] = useState([]);
@@ -20,7 +21,7 @@ export default function HomePage() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const isAuth = !!token;
-  // --- ЛОГИКА ОСТАЛАСЬ ТВОЯ ---
+  
   const loadPopularGames = (size = initialGameLoad) => {
     axios
       .get(`/api/games/popular?size=${size}`)
@@ -90,17 +91,29 @@ export default function HomePage() {
       .catch((err) => console.error(err));
   };
 
-  const GameCard = ({ game }) => (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition p-2">
+  const GameCard = ({ game }) => {
+
+  const handleClick = () => {
+    navigate(`/games/${game.id}`);
+  };
+
+  return (
+    <div
+      onClick={handleClick}
+      className="bg-white rounded-xl shadow-sm hover:shadow-md transition p-2 cursor-pointer"
+    >
       <img
         src={game.posterUrl}
         alt={game.name}
         className="h-48 w-full object-cover rounded-lg mb-2"
       />
       <h3 className="font-semibold text-sm text-gray-800">{game.name}</h3>
-      <span className="text-yellow-500 font-bold text-sm">⭐ {game.rating}</span>
+      <span className="text-yellow-500 font-bold text-sm">
+        ⭐ {game.rating}
+      </span>
     </div>
   );
+};
 
   return (
     <div className="bg-gray-50 p-6 max-w-7xl mx-auto space-y-10 min-h-screen">

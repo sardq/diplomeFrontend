@@ -1,27 +1,13 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { request, setAuthHeader } from '../helpers/axios_helper';
-import { jwtDecode } from 'jwt-decode';
-import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import { setAuthHeader } from '../helpers/axios_helper';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { AuthContent } from './AuthContent';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import HomePage from './HomePage';
 import PreferencesPage from './SurveyPage';
 import ProfilePage from './ProfilePage';
-const decodeToken = (token) => {
-  try {
-    return jwtDecode(token);
-  } catch (error) {
-    console.error('Ошибка декодирования токена:', error);
-    return null;
-  }
-};
-
-const getRoleFromToken = (token) => {
-  const decoded = decodeToken(token);
-  return decoded?.role || decoded?.authorities?.[0]?.authority || null;
-};
-
+import GameDetailsPage from './GameDetailsPage';
 
 
 export default function AppContent() {
@@ -53,33 +39,12 @@ export default function AppContent() {
 
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={<LoginForm showToast={showToast} setShowToast={setShowToast} />}
-      />
-      
-      <Route
-        path="/register"
-        element={<RegisterForm showToast={showToast} setShowToast={setShowToast} />}
-      />
-      <Route
-        path="/preferences"
-        element={
-            < PreferencesPage/>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-            <ProfilePage />
-        }
-      />
-      <Route
-        path="/"
-        element={
-            <HomePage />
-        }
-      />
+      <Route path="/login" element={<LoginForm showToast={showToast} setShowToast={setShowToast} />}/>
+      <Route path="/register" element={<RegisterForm showToast={showToast} setShowToast={setShowToast} />}/>
+      <Route path="/preferences" element={ < PreferencesPage/> } />
+      <Route path="/profile" element={<ProfilePage />}/>
+      <Route path="/games/:id" element={<GameDetailsPage />} />
+      <Route path="/" element={<HomePage />} />
     </Routes>
   );
 }
