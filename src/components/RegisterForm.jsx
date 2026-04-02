@@ -6,7 +6,6 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [birthDate, setBirthDate] = useState("");
   const [error, setError] = useState("");
   const validateFields = () => {
     if (!username) {
@@ -21,10 +20,7 @@ export default function RegisterPage() {
       setError("Пожалуйста, заполните поле пароля.");
       return false;
     }
-    if (!birthDate) {
-      setError("Пожалуйста, заполните дату рождения.");
-      return false;
-    }
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError("Введите корректный Email.");
@@ -47,7 +43,7 @@ export default function RegisterPage() {
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, username, birthDate }),
+        body: JSON.stringify({ email, password, username }),
       });
 
       if (!response.ok) {
@@ -104,13 +100,6 @@ export default function RegisterPage() {
           placeholder="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-        />
-        <label className="block mb-1 text-gray-700">Дата рождения</label>
-        <input
-          type="date"
-          className="w-full p-2 border rounded mb-4"
-          value={birthDate}
-          onChange={(e) => setBirthDate(e.target.value)}
         />
         <button
           className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition mb-4"

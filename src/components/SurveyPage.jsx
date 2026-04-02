@@ -1,34 +1,56 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "./service/api";
-import { AuthContent } from "./AuthContent";
+
 export default function PreferencesPage() {
   const [search, setSearch] = useState("");
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState({});
-  const {email} = useContext(AuthContent);
   const navigate = useNavigate();
-  const userId = localStorage.getItem("userId");
 
+  // Подгрузка тегов с фильтром поиска
   useEffect(() => {
     api.get(`/tags/search?search=${search}&size=6`)
       .then((res) => setTags(res.data || []))
       .catch(console.error);
   }, [search]);
 
+  // ❗ Подгрузка сохранённых оценок пользователя при монтировании страницы
+  useEffect(() => {
+    api.get("/preferences/user")  // предполагаемый эндпоинт для получения оценок пользователя
+      .then((res) => {
+        const data = res.data || [];
+        // Преобразуем в объект selectedTags
+        const initialSelected = {};
+        console.log(data);
+        data.forEach(item => {
+          initialSelected[item.tagId] = {
+           id : item.tagId,
+           name: item.tagName,
+           rating: Math.round(item.preferenceWeight * 5)
+          };
+        });
+        setSelectedTags(initialSelected);
+      })
+      .catch(console.error);
+  }, []);
+
   const rateTag = (tag, rating) => {
     setSelectedTags((prev) => ({
       ...prev,
-      [tag.id]: { ...tag, rating }
+      [tag.id]: { 
+      id: tag.id,      
+      name: tag.name,  
+      rating }
     }));
   };
 
   const handleSave = () => {
     const tagDtos = Object.values(selectedTags).map(t => ({
-        tagId: t.id,
-        rating: t.rating
-        }));
-  
+      tagId: t.id,      
+      rating: t.rating
+    }));
+
     api.post(`/preferences/init`, tagDtos)
       .then(() => navigate("/"))
       .catch(console.error);
@@ -55,7 +77,6 @@ export default function PreferencesPage() {
   return (
     <div className="bg-gray-50 min-h-screen p-6">
       <div className="max-w-4xl mx-auto space-y-6">
-
         <h1 className="text-3xl font-bold text-gray-900">
           Выбор предпочтений
         </h1>
@@ -91,26 +112,26 @@ export default function PreferencesPage() {
 
           <div className="flex flex-wrap gap-3">
             {Object.values(selectedTags).map((tag) => (
-                <div
+              <div
                 key={tag.id}
                 className="px-4 py-2 bg-purple-100 text-purple-800 rounded-full font-medium shadow-sm flex items-center gap-2"
-                >
+              >
                 {tag.name} ⭐ {tag.rating}
                 <span
-                    className="cursor-pointer font-bold hover:text-red-500"
-                    onClick={() => {
+                  className="cursor-pointer font-bold hover:text-red-500"
+                  onClick={() => {
                     setSelectedTags((prev) => {
-                        const newTags = { ...prev };
-                        delete newTags[tag.id];
-                        return newTags;
+                      const newTags = { ...prev };
+                      delete newTags[tag.id];
+                      return newTags;
                     });
-                    }}
+                  }}
                 >
-                    ×
+                  ×
                 </span>
-                </div>
+              </div>
             ))}
-            </div>
+          </div>
         </div>
 
         {/* Кнопка */}

@@ -1,7 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import api from "./service/api";
 
 export default function HomePage() {
   const [popularGames, setPopularGames] = useState([]);
@@ -14,6 +13,10 @@ export default function HomePage() {
   const [searchResults, setSearchResults] = useState([]);
   const [showTagFilter, setShowTagFilter] = useState(false);
 
+  const [tagSearchTerm, setTagSearchTerm] = useState("");
+  const [filteredTags, setFilteredTags] = useState(allTags);
+  const [showAllTags, setShowAllTags] = useState(false);
+
   const tagSize = 5;
   const initialGameLoad = 5;
   const effectRan = useRef(false);
@@ -21,7 +24,21 @@ export default function HomePage() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const isAuth = !!token;
-  
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!tagSearchTerm.trim()) {
+        setFilteredTags(allTags);
+        return;
+      }
+
+      axios
+        .get(`/api/tags/search?search=${encodeURIComponent(tagSearchTerm)}&size=20`)
+        .then(res => setFilteredTags(res.data || []))
+        .catch(console.error);
+    }, 300); 
+    return () => clearTimeout(timeout);
+  }, [tagSearchTerm, allTags]);
+
   const loadPopularGames = (size = initialGameLoad) => {
     axios
       .get(`/api/games/popular?size=${size}`)
@@ -53,14 +70,13 @@ export default function HomePage() {
       .then((res) => setAllTags(res.data.content || []))
       .catch((err) => console.error(err));
   };
-
+  
   useEffect(() => {
     if (effectRan.current) return;
 
     loadPopularGames();
     loadTags(0);
     loadAllTags();
-
     effectRan.current = true;
   }, []);
 
@@ -83,7 +99,8 @@ export default function HomePage() {
     setTagPage(nextPage);
   };
 
-  const handleSearch = () => {
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value)
     if (!searchTerm.trim()) return setSearchResults([]);
     axios
       .get(`/api/games/filter?search=${encodeURIComponent(searchTerm)}`)
@@ -93,11 +110,13 @@ export default function HomePage() {
 
   const GameCard = ({ game }) => {
 
-  const handleClick = () => {
+  const handleClick = (e) => {
+    if (e.target.closest(".rating-link")) return;
     navigate(`/games/${game.id}`);
   };
 
   return (
+
     <div
       onClick={handleClick}
       className="bg-white rounded-xl shadow-sm hover:shadow-md transition p-2 cursor-pointer"
@@ -108,9 +127,23 @@ export default function HomePage() {
         className="h-48 w-full object-cover rounded-lg mb-2"
       />
       <h3 className="font-semibold text-sm text-gray-800">{game.name}</h3>
-      <span className="text-yellow-500 font-bold text-sm">
-        ⭐ {game.rating}
-      </span>
+      <div className="flex items-center gap-1 text-sm font-bold text-yellow-500">
+      <a 
+        href="https://rawg.io" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="rating-link flex items-center gap-1"
+      >
+        <span>⭐</span>
+        <img
+          src="https://rawg.io/favicon.ico"
+          alt="RAWG"
+          className="h-4 w-4"
+        />
+        <span>{game.rating}</span>
+      </a>
+    </div>
+      
     </div>
   );
 };
@@ -145,7 +178,8 @@ export default function HomePage() {
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) =>     handleSearch(e)
+}
             placeholder="Поиск игр..."
             className="px-4 py-2 border border-gray-300 rounded-l-lg w-full focus:ring-2 focus:ring-purple-400"
           />
@@ -161,18 +195,39 @@ export default function HomePage() {
 
       {/* Теги фильтра */}
       {showTagFilter && (
-        <div className="bg-white p-4 rounded-xl shadow-sm mb-6 grid grid-cols-5 gap-3">
-          {allTags.map((tag) => (
+      <div className="bg-white p-4 rounded-xl shadow-sm mb-6 space-y-4">
+        <input
+          type="text"
+          placeholder="Найти тег..."
+          value={tagSearchTerm}
+          onChange={(e) => setTagSearchTerm(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400"
+        />
+
+        <div className="grid grid-cols-5 gap-3">
+          {(showAllTags ? filteredTags : filteredTags.slice(0, 5)).map((tag) => (
             <span
               key={tag.id}
-              onClick={() => navigate(`/games/tag/${tag.slug}`)}
+              onClick={() => navigate(`/games?tag=${tag.slug}`)}
               className="px-3 py-1 rounded-full cursor-pointer text-sm bg-gray-100 hover:bg-gray-200 transition"
             >
               {tag.name}
             </span>
           ))}
         </div>
-      )}
+
+        {filteredTags.length > 5 && (
+          <div className="flex justify-center mt-2">
+            <button
+              onClick={() => setShowAllTags((prev) => !prev)}
+              className="text-blue-500 hover:underline"
+            >
+              {showAllTags ? "Скрыть" : "Показать ещё"}
+            </button>
+          </div>
+        )}
+      </div>
+    )}
 
       {/* Поиск */}
       {searchTerm ? (
@@ -218,7 +273,7 @@ export default function HomePage() {
                 </button>
               ) : (
                 <button
-                  onClick={() => navigate("/games/popular")}
+                  onClick={() => navigate("/games?popular")}
                   className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                 >
                   Загрузить ещё
@@ -254,7 +309,7 @@ export default function HomePage() {
                     </button>
                   ) : (
                     <button
-                      onClick={() => navigate(`/games/tag/${tag.slug}`)}
+                      onClick={() => navigate(`/games?tag/${tag.slug}`)}
                       className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                     >
                       Загрузить ещё
