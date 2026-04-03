@@ -151,7 +151,6 @@ export default function HomePage() {
   return (
     <div className="bg-gray-50 p-6 max-w-7xl mx-auto space-y-10 min-h-screen">
 
-      {/* Опрос */}
       {isAuth && (
         <div className="bg-white p-5 rounded-xl shadow-sm flex justify-between items-center">
           <div>
@@ -172,7 +171,6 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Поиск */}
       <div className="flex justify-between items-center mb-6 gap-4">
         <div className="flex w-2/3">
           <input
@@ -193,7 +191,6 @@ export default function HomePage() {
         </button>
       </div>
 
-      {/* Теги фильтра */}
       {showTagFilter && (
       <div className="bg-white p-4 rounded-xl shadow-sm mb-6 space-y-4">
         <input
@@ -229,7 +226,6 @@ export default function HomePage() {
       </div>
     )}
 
-      {/* Поиск */}
       {searchTerm ? (
         searchResults.length > 0 ? (
           <section>
@@ -249,7 +245,6 @@ export default function HomePage() {
         )
       ) : (
         <>
-          {/* Популярные */}
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Популярные игры
@@ -282,7 +277,6 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* Теги */}
           {tags.map((tag) => {
             const games = gamesByTag[tag.id] || [];
             const loadedCount = loadedCounts[tag.id] || initialGameLoad;

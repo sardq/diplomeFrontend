@@ -1,24 +1,23 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "./service/api";
 
 export default function GameDetailsPage() {
   const { id } = useParams();
   const token = localStorage.getItem("token");
   const isAuth = !!token;
-
+  const navigate = useNavigate();
   const [game, setGame] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  // Состояния для отображения сохраненного отзыва
   const [userRating, setUserRating] = useState(0);
   const [userReview, setUserReview] = useState("");
 
-  // Состояния для редактирования
   const [editRating, setEditRating] = useState(0);
   const [editReview, setEditReview] = useState("");
 
-  const [reviews, setReviews] = useState([]); // чужие отзывы
+  const [reviews, setReviews] = useState([]); 
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 5;
@@ -96,7 +95,6 @@ useEffect(() => {
     .catch(console.error);
   };
 
-  // Загружаем и рейтинг, и отзыв пользователя
   const loadUserReviewAndRating = () => {
     api.get(`/interactions/review/user/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -144,7 +142,6 @@ useEffect(() => {
 
     Promise.all(requests)
       .then(() => {
-        // после сохранения обновляем блок "Ваш отзыв"
         loadUserReviewAndRating();
       })
       .catch(console.error);
@@ -155,8 +152,14 @@ useEffect(() => {
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8">
 
-      {/* Основная информация */}
-      <div className="bg-white p-6 rounded-xl shadow flex gap-6">
+      <div className="bg-white p-6 rounded-xl shadow flex gap-6 relative">
+  
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition"
+      >
+        ← Назад
+      </button>
         <img src={game.posterUrl} alt={game.name} className="w-64 h-80 object-cover rounded-xl" />
         <div className="flex flex-col gap-3 flex-1">
           <h1 className="text-3xl font-bold">{game.name}</h1>
@@ -181,7 +184,6 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* Поле редактирования */}
       {isAuth && (
         <div className="bg-white p-4 rounded-xl shadow mb-4">
           <p className="font-semibold mb-1">Напишите ваш отзыв:</p>
@@ -213,7 +215,6 @@ useEffect(() => {
         </div>
       )}
 
-      {/* Блок отображения вашего сохранённого отзыва */}
       {isAuth && (userReview || userRating) && (
         <div className="bg-gray-50 p-4 rounded-xl shadow mb-4">
           <p className="font-semibold mb-1">Ваш отзыв:</p>
@@ -228,7 +229,6 @@ useEffect(() => {
         </div>
       )}
 
-      {/* Чужие отзывы */}
       <div className="bg-white p-4 rounded-xl shadow">
         <h2 className="text-xl font-bold mb-3">Обзоры других пользователей</h2>
         {reviews.length === 0 && <p className="text-gray-500">Пока нет отзывов</p>}

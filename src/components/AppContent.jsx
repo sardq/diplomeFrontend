@@ -9,6 +9,7 @@ import PreferencesPage from './SurveyPage';
 import ProfilePage from './ProfilePage';
 import GameDetailsPage from './GameDetailsPage';
 import FilterPage from './FilterPage';
+import FavoritesPage from './FavoritesPage';
 
 export default function AppContent() {
   const { setEmail } = useContext(AuthContent);
@@ -45,6 +46,7 @@ export default function AppContent() {
       <Route path="/profile" element={<ProfilePage />}/>
       <Route path="/games/:id" element={<GameDetailsPage />} />
       <Route path="/games" element={<FilterPage />}/>
+      <Route path="/favorites" element={<FavoritesPage/>}/>
       <Route path="/" element={<HomePage />} />
     </Routes>
   );

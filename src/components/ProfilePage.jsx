@@ -12,12 +12,10 @@ export default function ProfilePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Получаем профиль
     api.get("/auth/me")
       .then((res) => setUser(res.data))
       .catch((err) => console.error(err));
 
-    // Получаем избранное
     api.get("/interactions/favorites")
       .then((res) => setFavorites(res.data))
       .catch((err) => console.error(err));
@@ -53,7 +51,6 @@ export default function ProfilePage() {
   return (
     <div className="bg-gray-50 min-h-screen p-6">
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6 space-y-6">
-        {/* Аватарка и имя */}
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-gray-200 flex justify-center items-center text-gray-400 text-2xl font-bold">
             {user.username[0].toUpperCase()}
@@ -64,7 +61,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Информация о пользователе */}
         <div className="grid grid-cols-2 gap-4 text-gray-700">
           <div>
             <span className="font-semibold">Дата регистрации:</span>
@@ -76,7 +72,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Кнопка перенастройки тегов */}
         <div className="flex justify-center">
           <button
             onClick={() => navigate("/preferences")}
@@ -86,7 +81,6 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        {/* Список избранного */}
         <div>
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Избранные игры</h2>
           {favorites.length === 0 && <p className="text-gray-500">Нет игр в избранном.</p>}
@@ -113,7 +107,6 @@ export default function ProfilePage() {
           )}
         </div>
 
-        {/* Список отзывов */}
         <div>
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Мои отзывы</h2>
           {reviews.length === 0 && <p className="text-gray-500">Нет отзывов.</p>}

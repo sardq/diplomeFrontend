@@ -22,7 +22,6 @@ export default function Header({ email }) {
             <>
               {email && <span className="text-sm text-gray-500 hidden sm:block">{email}</span>}
 
-              {/* Ссылка на профиль */}
               <button
                 onClick={() => navigate("/profile")}
                 className="bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition"

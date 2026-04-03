@@ -68,7 +68,6 @@ export default function GamesPage() {
         }
         setTotalGames(prev => append ? prev + res.data.length : res.data.length);
 
-        // Установим название для заголовка
         if (tagSlug === "popular") {
           setTagName("Популярные игры");
         } else {
@@ -123,10 +122,8 @@ export default function GamesPage() {
   return (
     <div className="bg-gray-100 p-6 max-w-5xl mx-auto min-h-screen">
 
-      {/* Секция фильтра тегов */}
       <div className="bg-white p-4 rounded shadow mb-6 space-y-4">
 
-  {/* Поиск */}
   <input
     type="text"
     placeholder="Найти тег..."
@@ -135,7 +132,6 @@ export default function GamesPage() {
     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400"
   />
 
-  {/* Теги */}
       <div className="grid grid-cols-5 gap-4">
         {visibleTags.map(tag => (
           <span
@@ -151,7 +147,6 @@ export default function GamesPage() {
         ))}
       </div>
 
-      {/* Кнопка показать ещё */}
       {filteredTags.length > 5 && (
         <div className="flex justify-center">
           <button
@@ -164,10 +159,8 @@ export default function GamesPage() {
       )}
     </div>
 
-      {/* Заголовок */}
       <h2 className="text-2xl font-bold mb-6">{tagName}</h2>
 
-      {/* Список игр */}
       {games.length === 0 ? (
         <p className="text-center text-gray-500 text-lg">Игра не найдена</p>
       ) : (
@@ -177,7 +170,6 @@ export default function GamesPage() {
           <GameCard  game={game} onClick={() => navigate(`/games/${game.id}`)}/>
             </div> )}
 
-          {/* Кнопка загрузить еще */}
           {games.length < totalGames + pageSize && (
             <div className="flex justify-center mt-4">
               <button
