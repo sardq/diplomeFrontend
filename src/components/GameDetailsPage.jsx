@@ -33,11 +33,11 @@ useEffect(() => {
 
   useEffect(() => {
     loadGame();
-    sendView();
 
     if (isAuth) {
       loadUserReviewAndRating();
       loadFavorite();
+      sendView();
     }
   }, [id]);
   useEffect(() => {
@@ -79,10 +79,7 @@ useEffect(() => {
     })
     .then(res => {
       const data = res.data || [];
-      console.log(data);
-      console.log(currentUserId);
       const otherReviews = data.filter(r => !isAuth || r.id !== currentUserId);
-      console.log(otherReviews);
 
       if (append) {
         setReviews(prev => [...prev, ...otherReviews]);
@@ -241,12 +238,12 @@ useEffect(() => {
         ))}
         {hasMore && (
           <div className="flex justify-center mt-4">
-            <button
+            {/* <button
               onClick={loadMore}
               className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
             >
               Загрузить ещё
-            </button>
+            </button> */}
           </div>
         )}
       </div>
