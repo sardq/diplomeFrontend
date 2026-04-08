@@ -51,11 +51,20 @@ useEffect(() => {
     loadReviews(nextPage, true);
   };
 
-  const loadGame = () => {
-    api.get(`/games/${id}`)
-      .then(res => setGame(res.data))
-      .catch(console.error);
-  };
+  const loadGame = async () => {
+  try {
+    setGame(null);
+
+    await api.post(`/games/load/${id}`);
+
+    const res = await api.get(`/games/${id}`);
+
+    setGame(res.data);
+
+  } catch (e) {
+    console.error(e);
+  }
+};
 
   const loadFavorite = () => {
     api.get(`/interactions/favorite`, {
@@ -98,7 +107,7 @@ useEffect(() => {
     })
     .then(res => {
       if (res.data) {
-        setUserRating(res.data.rating || 0);
+        setUserRating(res.data.rating);
         setUserReview(res.data.review || "");
         setEditRating(res.data.rating || 0);
         setEditReview(res.data.review || "");
@@ -144,7 +153,13 @@ useEffect(() => {
       .catch(console.error);
   };
 
-  if (!game) return <div>Загрузка...</div>;
+  if (!game) {
+  return (
+    <div className="flex justify-center items-center h-64">
+      <span className="text-gray-500 text-lg">Загрузка игры...</span>
+    </div>
+  );
+}
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8">
@@ -161,12 +176,13 @@ useEffect(() => {
         <div className="flex flex-col gap-3 flex-1">
           <h1 className="text-3xl font-bold">{game.name}</h1>
           <span className="text-yellow-500 text-lg font-bold">⭐ {game.rating}</span>
-          {game.metacritic && <span className="text-green-600 font-semibold">Metacritic: {game.metacritic}</span>}
-          <p className="text-gray-600">{game.description}</p>
+          {game.metacriticRate && <span className="text-green-600 font-semibold">Metacritic: {game.metacriticRate}</span>}
+          <div dangerouslySetInnerHTML={{ __html: game.description }} />
 
           <div className="flex flex-wrap gap-2 mt-2">
             {game.tags?.map(tag => (
-              <span key={tag.id} className="px-3 py-1 bg-gray-200 rounded-full text-sm">{tag.name}</span>
+              <span key={tag} className="px-3 py-1 bg-gray-200 rounded-full text-sm">
+              {tag}</span>
             ))}
           </div>
 
@@ -215,7 +231,7 @@ useEffect(() => {
       {isAuth && (userReview || userRating) && (
         <div className="bg-gray-50 p-4 rounded-xl shadow mb-4">
           <p className="font-semibold mb-1">Ваш отзыв:</p>
-          {userRating > 0 && (
+          {userRating > -1 && (
             <div className="flex gap-1 text-2xl mb-2">
               {[1,2,3,4,5].map(num => (
                 <span key={num}>{num <= userRating ? "★" : "☆"}</span>
