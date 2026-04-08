@@ -58,8 +58,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full">
+   <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center bg-gray-100 px-4 pt-70">
+  <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full">
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
           Авторизация
         </h1>

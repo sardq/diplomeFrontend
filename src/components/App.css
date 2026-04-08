@@ -92,8 +92,14 @@ body {
   text-align: center;
   padding: 10px 15px;
   box-sizing: border-box;
+  position: fixed;
+  z-index: 50;
 }
-
+header {
+  position: fixed;
+  width: 100%;
+  z-index: 50;
+}
 .App-title {
   font-size: 1.4em;
 }
@@ -183,6 +189,7 @@ body {
   flex-direction: column;
   min-height: 0;
 }
+
 .modal-content {
   background-color: #444444 !important;
 }

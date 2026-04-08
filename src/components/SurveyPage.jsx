@@ -8,23 +8,24 @@ export default function PreferencesPage() {
   const [selectedTags, setSelectedTags] = useState({});
   const navigate = useNavigate();
 
+  // Загрузка тегов по поиску
   useEffect(() => {
     api.get(`/tags/search?search=${search}&size=6`)
       .then((res) => setTags(res.data || []))
       .catch(console.error);
   }, [search]);
 
+  // Загрузка предпочтений пользователя
   useEffect(() => {
-    api.get("/preferences/user")  
+    api.get("/preferences/user")
       .then((res) => {
         const data = res.data || [];
         const initialSelected = {};
-        console.log(data);
         data.forEach(item => {
           initialSelected[item.tagId] = {
-           id : item.tagId,
-           name: item.tagName,
-           rating: Math.round(item.preferenceWeight * 5)
+            id: item.tagId,
+            name: item.tagName,
+            rating: Math.min((item.preferenceWeight * 5), 5) // нормализуем до 5
           };
         });
         setSelectedTags(initialSelected);
@@ -32,19 +33,18 @@ export default function PreferencesPage() {
       .catch(console.error);
   }, []);
 
+  // Изменение рейтинга тега
   const rateTag = (tag, rating) => {
-    setSelectedTags((prev) => ({
+    setSelectedTags(prev => ({
       ...prev,
-      [tag.id]: { 
-      id: tag.id,      
-      name: tag.name,  
-      rating }
+      [tag.id]: { id: tag.id, name: tag.name, rating }
     }));
   };
 
+  // Сохранение предпочтений
   const handleSave = () => {
     const tagDtos = Object.values(selectedTags).map(t => ({
-      tagId: t.id,      
+      tagId: t.id,
       rating: t.rating
     }));
 
@@ -53,46 +53,50 @@ export default function PreferencesPage() {
       .catch(console.error);
   };
 
-  const Rating = ({ tag }) => (
-    <div className="flex gap-1 mt-2">
-      {[1, 2, 3, 4, 5].map((num) => (
-        <span
-          key={num}
-          onClick={() => rateTag(tag, num)}
-          className={`cursor-pointer text-2xl transition ${
-            selectedTags[tag.id]?.rating >= num
-              ? "text-yellow-400 scale-110"
-              : "text-gray-300 hover:text-yellow-300"
-          }`}
+  // Компонент звездного рейтинга с дробной заливкой
+  const Rating = ({ tag }) => {
+    const rating = selectedTags[tag.id]?.rating || 0;
+    const percentage = (rating / 5) * 100;
+
+    return (
+      <div
+        className="relative inline-block w-max text-2xl mt-2 cursor-pointer"
+        onClick={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const clickX = e.clientX - rect.left;
+          const newRating = Math.round((clickX / rect.width) * 5 * 2) / 2; // шаг 0.5
+          rateTag(tag, newRating);
+        }}
+      >
+        {/* Нижний слой серых звезд */}
+        <div className="flex gap-1 text-gray-300">
+          {[1, 2, 3, 4, 5].map(num => <span key={num}>★</span>)}
+        </div>
+        {/* Верхний слой желтых звезд с обрезкой */}
+        <div
+          className="absolute top-0 left-0 overflow-hidden flex gap-1 text-yellow-400"
+          style={{ width: `${percentage}%` }}
         >
-          ★
-        </span>
-      ))}
-    </div>
-  );
+          {[1, 2, 3, 4, 5].map(num => <span key={num}>★</span>)}
+        </div>
+      </div>
+    );
+  };
+
+  // Форматирование числа с 2 знаками после запятой
+  const formatRating = (rating) => rating.toFixed(2);
 
   return (
     <div className="bg-gray-50 min-h-screen p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          
-          <h1 className="text-3xl font-bold text-gray-900">
-            Выбор предпочтений
-          </h1>
-
+          <h1 className="text-3xl font-bold text-gray-900">Выбор предпочтений</h1>
           <button
-            onClick={() => {
-              if (window.history.length > 1) {
-                navigate(-1);
-              } else {
-                navigate("/profile");
-              }
-            }}
+            onClick={() => navigate(window.history.length > 1 ? -1 : "/profile")}
             className="text-gray-500 hover:text-gray-700 transition"
           >
             ← Назад
           </button>
-
         </div>
 
         <input
@@ -104,40 +108,33 @@ export default function PreferencesPage() {
         />
 
         <div className="grid grid-cols-2 gap-4">
-          {tags.map((tag) => (
+          {tags.map(tag => (
             <div
               key={tag.id}
               className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition"
             >
-              <div className="font-semibold text-gray-800">
-                {tag.name}
-              </div>
+              <div className="font-semibold text-gray-800">{tag.name}</div>
               <Rating tag={tag} />
             </div>
           ))}
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Выбранные теги
-          </h2>
-
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Выбранные теги</h2>
           <div className="flex flex-wrap gap-3">
-            {Object.values(selectedTags).map((tag) => (
+            {Object.values(selectedTags).map(tag => (
               <div
                 key={tag.id}
                 className="px-4 py-2 bg-purple-100 text-purple-800 rounded-full font-medium shadow-sm flex items-center gap-2"
               >
-                {tag.name} ⭐ {tag.rating}
+                {tag.name} ⭐ {formatRating(tag.rating)}
                 <span
                   className="cursor-pointer font-bold hover:text-red-500"
-                  onClick={() => {
-                    setSelectedTags((prev) => {
-                      const newTags = { ...prev };
-                      delete newTags[tag.id];
-                      return newTags;
-                    });
-                  }}
+                  onClick={() => setSelectedTags(prev => {
+                    const newTags = { ...prev };
+                    delete newTags[tag.id];
+                    return newTags;
+                  })}
                 >
                   ×
                 </span>
