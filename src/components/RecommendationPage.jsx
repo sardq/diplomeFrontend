@@ -31,7 +31,6 @@ export default function RecommendationsPage() {
       <h1 className="text-3xl font-bold">Архив твоих рекомендаций</h1>
       
       <div className="grid grid-cols-4 gap-6">
-        {/* Список сессий слева */}
         <div className="col-span-1 space-y-3">
           {sessions.map(s => (
             <div 
@@ -46,7 +45,6 @@ export default function RecommendationsPage() {
           ))}
         </div>
 
-        {/* Детали сессии справа */}
         <div className="col-span-3 bg-white p-6 rounded-xl shadow-sm">
           {selectedSession ? (
             <div>

@@ -8,14 +8,12 @@ export default function PreferencesPage() {
   const [selectedTags, setSelectedTags] = useState({});
   const navigate = useNavigate();
 
-  // Загрузка тегов по поиску
   useEffect(() => {
     api.get(`/tags/search?search=${search}&size=6`)
       .then((res) => setTags(res.data || []))
       .catch(console.error);
   }, [search]);
 
-  // Загрузка предпочтений пользователя
   useEffect(() => {
     api.get("/preferences/user")
       .then((res) => {
@@ -25,7 +23,7 @@ export default function PreferencesPage() {
           initialSelected[item.tagId] = {
             id: item.tagId,
             name: item.tagName,
-            rating: Math.min((item.preferenceWeight * 5), 5) // нормализуем до 5
+            rating: Math.min((item.preferenceWeight * 5), 5)  
           };
         });
         setSelectedTags(initialSelected);
@@ -33,7 +31,6 @@ export default function PreferencesPage() {
       .catch(console.error);
   }, []);
 
-  // Изменение рейтинга тега
   const rateTag = (tag, rating) => {
     setSelectedTags(prev => ({
       ...prev,
@@ -41,7 +38,6 @@ export default function PreferencesPage() {
     }));
   };
 
-  // Сохранение предпочтений
   const handleSave = () => {
     const tagDtos = Object.values(selectedTags).map(t => ({
       tagId: t.id,
@@ -53,7 +49,6 @@ export default function PreferencesPage() {
       .catch(console.error);
   };
 
-  // Компонент звездного рейтинга с дробной заливкой
   const Rating = ({ tag }) => {
     const rating = selectedTags[tag.id]?.rating || 0;
     const percentage = (rating / 5) * 100;
@@ -64,15 +59,13 @@ export default function PreferencesPage() {
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
           const clickX = e.clientX - rect.left;
-          const newRating = Math.round((clickX / rect.width) * 5 * 2) / 2; // шаг 0.5
+          const newRating = Math.round((clickX / rect.width) * 5 * 2) / 2;
           rateTag(tag, newRating);
         }}
       >
-        {/* Нижний слой серых звезд */}
         <div className="flex gap-1 text-gray-300">
           {[1, 2, 3, 4, 5].map(num => <span key={num}>★</span>)}
         </div>
-        {/* Верхний слой желтых звезд с обрезкой */}
         <div
           className="absolute top-0 left-0 overflow-hidden flex gap-1 text-yellow-400"
           style={{ width: `${percentage}%` }}
@@ -83,7 +76,6 @@ export default function PreferencesPage() {
     );
   };
 
-  // Форматирование числа с 2 знаками после запятой
   const formatRating = (rating) => rating.toFixed(2);
 
   return (

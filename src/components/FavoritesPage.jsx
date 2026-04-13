@@ -59,7 +59,7 @@ export default function FavoritesPage() {
           ))}
         </div>
 
-        {hasMore && (
+        {/* {hasMore && (
           <div className="flex justify-center mt-4">
             <button
               onClick={() => loadFavorites(page + 1)}
@@ -68,7 +68,7 @@ export default function FavoritesPage() {
               Загрузить еще
             </button>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

@@ -18,10 +18,9 @@ export default function GamesPage() {
   const [tagName, setTagName] = useState("");
   
   const [searchParams] = useSearchParams();
-  const tagSlug = searchParams.get("tag") || "popular"; // popular по умолчанию
+  const tagSlug = searchParams.get("tag") || "popular"; 
   const pageSize = 10;
 
-  // Загрузка тегов для фильтра
   useEffect(() => {
     axios.get("/api/tags?page=0&size=40")
       .then(res => setAllTags(res.data.content || []))
@@ -53,7 +52,6 @@ export default function GamesPage() {
       const tag = allTags.find(t => t.slug === tagSlug);
 
       if (!tag) {
-        console.error("Tag not found:", tagSlug);
         return;
       }
 

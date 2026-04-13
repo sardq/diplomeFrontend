@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "./service/api"; // твой axios с JWT
+import api from "./service/api"; 
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -20,7 +20,6 @@ export default function ProfilePage() {
       .then((res) => setFavorites(res.data))
       .catch((err) => console.error(err));
 
-    // Загружаем первые 5 отзывов
     loadReviews(0);
   }, []);
 
