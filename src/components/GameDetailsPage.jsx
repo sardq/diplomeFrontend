@@ -180,9 +180,17 @@ useEffect(() => {
           <div dangerouslySetInnerHTML={{ __html: game.description }} />
 
           <div className="flex flex-wrap gap-2 mt-2">
-            {game.tags?.map(tag => (
-              <span key={tag} className="px-3 py-1 bg-gray-200 rounded-full text-sm">
-              {tag}</span>
+            {game.tags?.map((tag) => (
+              <span
+                key={tag.id || tag.slug || tag} 
+                onClick={() => {
+                  const slug = tag.slug || tag.toString().toLowerCase().replace(/\s+/g, '-');
+                  navigate(`/games?tag=${slug}`);
+                }}
+                className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm cursor-pointer hover:bg-purple-200 hover:text-purple-900 transition font-medium border border-purple-200"
+              >
+                {tag.name || tag}
+              </span>
             ))}
           </div>
 
