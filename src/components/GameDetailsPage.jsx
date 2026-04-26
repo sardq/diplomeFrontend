@@ -160,7 +160,21 @@ useEffect(() => {
     </div>
   );
 }
+  const handleReaction = (reviewId, type) => {
+    if (!isAuth) {
+      alert("Нужно авторизоваться, чтобы оценивать отзывы");
+      return;
+    }
 
+    api.post(`/interactions/reviews/${reviewId}/react`, null, {
+      params: { type: type },
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(() => {
+      loadReviews(page, false);
+    })
+    .catch(console.error);
+  };
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8">
 
@@ -251,26 +265,86 @@ useEffect(() => {
       )}
 
       <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="text-xl font-bold mb-3">Обзоры других пользователей</h2>
-        {reviews.length === 0 && <p className="text-gray-500">Пока нет отзывов</p>}
-        {reviews.map((review, index) => (
-          <div key={review.id || index} className="border-b py-3 last:border-none">
-            <p className="text-sm text-gray-500">Пользователь #{review.login}</p>
-            <p className="text-gray-800">{review.review}</p>
-            {review.rating != null && <p className="text-yellow-500 font-bold">⭐ {review.rating}</p>}
-          </div>
-        ))}
-        {hasMore && (
-          <div className="flex justify-center mt-4">
-            {/* <button
-              onClick={loadMore}
-              className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
-            >
-              Загрузить ещё
-            </button> */}
-          </div>
-        )}
-      </div>
+      <h2 className="text-xl font-bold mb-5">Обзоры других пользователей</h2>
+      
+      {reviews.length === 0 ? (
+        <p className="text-gray-500 text-center py-4">Пока нет отзывов. Станьте первым!</p>
+      ) : (
+        <div className="space-y-6">
+          {reviews.map((review) => (
+            <div key={review.id} className="border-b pb-6 last:border-none border-gray-100">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold text-xs">
+                    {review.login?.charAt(0).toUpperCase()}
+                  </div>
+                  <p className="text-sm text-gray-600 font-semibold">
+                    Пользователь #{review.login}
+                  </p>
+                </div>
+                {review.rating != null && (
+                  <span className="text-yellow-500 font-bold bg-yellow-50 px-2 py-1 rounded-lg text-sm">
+                    ⭐ {review.rating}
+                  </span>
+                )}
+              </div>
+              
+              <p className="text-gray-800 mt-3 leading-relaxed">
+                {review.review || "Без текстового описания"}
+              </p>
+
+              {/* Панель реакций */}
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={() => handleReaction(review.id, 'LIKE')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-sm transition border ${
+                    review.currentUserReaction === 'LIKE' 
+                    ? 'bg-blue-50 text-blue-600 border-blue-200 font-bold' 
+                    : 'bg-gray-50 text-gray-500 border-transparent hover:bg-gray-100'
+                  }`}
+                >
+                  👍 {review.likesCount || 0}
+                </button>
+
+                <button
+                  onClick={() => handleReaction(review.id, 'DISLIKE')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-sm transition border ${
+                    review.currentUserReaction === 'DISLIKE' 
+                    ? 'bg-red-50 text-red-600 border-red-200 font-bold' 
+                    : 'bg-gray-50 text-gray-500 border-transparent hover:bg-gray-100'
+                  }`}
+                >
+                  👎 {review.dislikesCount || 0}
+                </button>
+
+                <button
+                  onClick={() => handleReaction(review.id, 'FUNNY')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-sm transition border ${
+                    review.currentUserReaction === 'FUNNY' 
+                    ? 'bg-yellow-50 text-yellow-700 border-yellow-200 font-bold' 
+                    : 'bg-gray-50 text-gray-500 border-transparent hover:bg-gray-100'
+                  }`}
+                >
+                  😂 {review.funnyCount || 0}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* КНОПКА ЗАГРУЗИТЬ ЕЩЁ */}
+      {hasMore && reviews.length > 0 && (
+        <div className="flex justify-center mt-8 pt-4 border-t border-gray-50">
+          <button
+            onClick={loadMore}
+            className="px-8 py-2.5 bg-green-500 text-white font-semibold rounded-xl hover:bg-green-600 hover:shadow-lg transition-all duration-200 active:scale-95"
+          >
+            Загрузить ещё отзывы
+          </button>
+        </div>
+      )}
+    </div>
     </div>
   );
 }
