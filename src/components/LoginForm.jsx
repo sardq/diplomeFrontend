@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import api from "./service/api";
 export default function LoginPage() {
   const navigate = useNavigate();
   const [emailLogin, setEmailLogin] = useState("");
@@ -29,31 +29,26 @@ export default function LoginPage() {
   const login = async () => {
     setError("");
     if (!validateFields()) return;
+
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email:emailLogin, password }),
+      const response = await api.post("/auth/login", {
+        email: emailLogin,
+        password: password,
       });
 
-       if (!response.ok) {
-        let errorMessage = "Ошибка авторизации";
-        try {
-          const errData = await response.json();
-          if (errData?.message) errorMessage = errData.message;
-        } catch {
-          const text = await response.text();
-          if (text) errorMessage = text;
-        }
-        throw new Error(errorMessage);
+      const data = response.data;
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        if (data.id) localStorage.setItem("userId", data.id);
+        
+        navigate("/");
       }
 
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
-      navigate("/");
-
     } catch (err) {
-      setError(err.message);
+      const message = err.response?.data?.message || err.response?.data || "Ошибка авторизации";
+      setError(typeof message === 'string' ? message : "Неверные данные");
+      console.error("Login error:", err);
     }
   };
 

@@ -204,21 +204,36 @@ export default function HomePage() {
 
     return (
       <div onClick={handleClick} className="bg-white rounded-xl shadow-sm hover:shadow-md transition p-2 cursor-pointer relative group">
+        {/* Бейдж процента совпадения */}
         {game.matchPercentage && (
           <div className="absolute top-4 right-4 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md z-10">
             {game.matchPercentage}% совпадение
           </div>
         )}
+        
         <div className="overflow-hidden rounded-lg mb-2">
             <img src={game.posterUrl} alt={game.name} className="h-48 w-full object-cover group-hover:scale-105 transition duration-300" />
         </div>
-        <h3 className="font-semibold text-sm text-gray-800 truncate">{game.name}</h3>
-        <div className="flex items-center gap-1 text-sm font-bold text-yellow-500">
-          <a href="https://rawg.io" target="_blank" rel="noopener noreferrer" className="rating-link flex items-center gap-1">
+        <h3 className="font-semibold text-sm text-gray-800 truncate mb-1">{game.name}</h3>
+        
+        {/* СТРОКА РЕЙТИНГОВ */}
+        <div className="flex items-center justify-between">
+          {/* Рейтинг RAWG */}
+          <div className="flex items-center gap-1 text-xs font-bold text-yellow-500">
             <span>⭐</span>
-            <img src="https://rawg.io/favicon.ico" alt="RAWG" className="h-4 w-4" />
             <span>{game.rating}</span>
-          </a>
+          </div>
+
+          {/* Локальный рейтинг (если есть) */}
+          {game.localRating > 0 && (
+            <div 
+              className="flex items-center gap-1 text-xs font-bold text-purple-500" 
+              title={`Оценок на сайте: ${game.localRatingCount}`}
+            >
+              <span>💎</span>
+              <span>{game.localRating?.toFixed(1)}</span>
+            </div>
+          )}
         </div>
       </div>
     );
