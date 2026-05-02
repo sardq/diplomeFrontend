@@ -23,7 +23,7 @@ export default function GamesPage() {
 
   useEffect(() => {
     axios.get("/api/tags?page=0&size=40")
-      .then(res => setAllTags(res.data.content || []))
+      .then(res => setAllTags(res.data || []))
       .catch(err => console.error(err));
   }, []);
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function GamesPage() {
           setTagName("Популярные игры");
         } else {
           const tag = allTags.find(t => t.slug === tagSlug);
-          setTagName(tag ? tag.name : "Игры по тегу");
+          setTagName(tag ? tag.nameRu : "Игры по тегу");
         }
       })
       .catch(err => console.error(err));
@@ -106,11 +106,11 @@ export default function GamesPage() {
     <div onClick={onClick} className="flex bg-white rounded-xl shadow p-4 mb-4 hover:shadow-lg transition">
       <img
         src={game.posterUrl}
-        alt={game.name}
+        alt={game.nameRu}
         className="h-32 w-24 object-cover rounded mr-4"
       />
       <div>
-        <h3 className="font-semibold text-lg">{game.name}</h3>
+        <h3 className="font-semibold text-lg">{game.name }</h3>
         <span className="text-yellow-500 font-bold">⭐ {game.rating}</span>
         <p className="text-gray-600 mt-2">{game.description}</p>
       </div>
@@ -140,7 +140,7 @@ export default function GamesPage() {
                 ? "bg-gray-300 font-semibold" 
                 : "hover:bg-gray-200"}`}
           >
-            {tag.name}
+            {tag.nameRu}
           </span>
         ))}
       </div>

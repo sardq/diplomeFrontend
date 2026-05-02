@@ -23,6 +23,7 @@ export default function PreferencesPage() {
           initialSelected[item.tagId] = {
             id: item.tagId,
             name: item.tagName,
+            nameRu: item.tagNameRu,
             rating: Math.min((item.preferenceWeight * 5), 5)  
           };
         });
@@ -34,7 +35,7 @@ export default function PreferencesPage() {
   const rateTag = (tag, rating) => {
     setSelectedTags(prev => ({
       ...prev,
-      [tag.id]: { id: tag.id, name: tag.name, rating }
+      [tag.id]: { id: tag.id, name: tag.name, nameRu: tag.nameRu, rating }
     }));
   };
 
@@ -105,7 +106,7 @@ export default function PreferencesPage() {
               key={tag.id}
               className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition"
             >
-              <div className="font-semibold text-gray-800">{tag.name}</div>
+              <div className="font-semibold text-gray-800">{tag.nameRu}</div>
               <Rating tag={tag} />
             </div>
           ))}
@@ -119,7 +120,7 @@ export default function PreferencesPage() {
                 key={tag.id}
                 className="px-4 py-2 bg-purple-100 text-purple-800 rounded-full font-medium shadow-sm flex items-center gap-2"
               >
-                {tag.name} ⭐ {formatRating(tag.rating)}
+                {tag.nameRu} ⭐ {formatRating(tag.rating)}
                 <span
                   className="cursor-pointer font-bold hover:text-red-500"
                   onClick={() => setSelectedTags(prev => {

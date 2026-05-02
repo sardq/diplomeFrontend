@@ -52,11 +52,11 @@ export const GameHeader = ({ game, isFavorite, toggleFavorite, isAuth, navigate 
       <div className="flex flex-wrap gap-2 mt-2">
         {game.tags?.map((tag) => (
           <span
-            key={tag.id || tag.slug || tag}
-            onClick={() => navigate(`/games?tag=${tag.slug || tag.toLowerCase().replace(/\s+/g, "-")}`)}
+            key={tag.id}
+              onClick={() => navigate(`/games?tag=${tag.slug}`)}
             className="px-3 py-1 bg-purple-50 text-purple-600 rounded-full text-sm cursor-pointer hover:bg-purple-100 transition font-medium border border-purple-100"
           >
-            {tag.name || tag}
+            {tag.nameRu || tag.name}
           </span>
         ))}
       </div>

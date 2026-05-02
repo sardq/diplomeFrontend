@@ -108,7 +108,7 @@ export default function HomePage() {
   const loadGeneralTags = (page = 0) => {
     api.get(`/tags?page=${page}&size=${tagSize}`)
       .then((res) => {
-        const newTags = res.data.content || res.data || [];
+        const newTags = res.data || res.data || [];
         setGeneralTags((prev) => {
             const ids = new Set(prev.map(t => t.id));
             return [...prev, ...newTags.filter(t => !ids.has(t.id))];
@@ -130,8 +130,8 @@ export default function HomePage() {
   const loadAllTags = () => {
     api.get(`/tags?page=0&size=40`)
       .then((res) => {
-          setAllTags(res.data.content || []);
-          setFilteredTags(res.data.content || []);
+          setAllTags(res.data || []);
+          setFilteredTags(res.data || []);
       });
   };
 
@@ -171,7 +171,7 @@ export default function HomePage() {
     return (
       <section key={tag.id} className="animate-fade-in">
         <h2 className="text-xl font-bold text-gray-900 mb-4 capitalize flex items-center gap-2">
-          {tag.name}
+          {tag.nameRu}
           {isRecommended && (
             <span className="text-[10px] bg-purple-100 text-purple-600 px-2 py-0.5 rounded uppercase tracking-wider">
               Твой жанр
@@ -294,7 +294,7 @@ export default function HomePage() {
             <div className="flex flex-wrap gap-2">
                 {(showAllTags ? filteredTags : filteredTags.slice(0, 10)).map((tag) => (
                     <span key={tag.id} onClick={() => navigate(`/games?tag=${tag.slug}`)} className="px-4 py-1.5 rounded-full cursor-pointer text-xs font-medium bg-gray-100 text-gray-600 hover:bg-purple-500 hover:text-white transition">
-                        {tag.name}
+                        {tag.nameRu}
                     </span>
                 ))}
             </div>
