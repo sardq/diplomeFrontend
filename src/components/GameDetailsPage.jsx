@@ -65,14 +65,19 @@ export default function GameDetailsPage() {
   };
 
   const loadReviews = (pageToLoad = 0, append = false) => {
-    api.get(`/interactions/reviews/game/${id}`, { params: { page: pageToLoad, size: pageSize } })
-      .then(res => {
-        const data = res.data || [];
-        const otherReviews = data.filter(r => !isAuth || r.id !== currentUserId);
-        setReviews(prev => append ? [...prev, ...otherReviews] : otherReviews);
-        setHasMore(data.length === pageSize);
-      }).catch(console.error);
-  };
+  api.get(`/interactions/reviews/game/${id}`, {
+    params: { page: pageToLoad, size: pageSize }
+  })
+  .then(res => {
+    const data = res.data || [];
+    // ТЕПЕРЬ СРАВНИВАЕМ authorId с currentUserId
+    const otherReviews = data.filter(r => !isAuth || r.authorId !== currentUserId);
+
+    setReviews(prev => append ? [...prev, ...otherReviews] : otherReviews);
+    setHasMore(data.length === pageSize);
+  })
+  .catch(console.error);
+};
 
   const loadUserReviewAndRating = () => {
     api.get(`/interactions/review/user/${id}`, { headers: { Authorization: `Bearer ${token}` } })
@@ -88,7 +93,7 @@ export default function GameDetailsPage() {
 
   const handleReaction = (reviewId, type) => {
     if (!isAuth) return;
-    api.post(`/interactions/reviews/${reviewId}/react`, null, { params: { type: type }, headers: { Authorization: `Bearer ${token}` } })
+    api.post(`/interactions/reviews/${reviewId}/react`, null, { params: { typeString: type }, headers: { Authorization: `Bearer ${token}` } })
       .then(() => loadReviews(page, false)).catch(console.error);
   };
 
@@ -124,7 +129,8 @@ export default function GameDetailsPage() {
 
       <GameMedia 
         screenshotUrls={game.screenshotUrls} 
-        trailerUrl={game.trailerUrl} 
+        trailerUrls={game.trailerUrls} 
+        walkthroughUrls={game.walkthroughUrls}
       />
 
       {/* 3. Твой отзыв */}

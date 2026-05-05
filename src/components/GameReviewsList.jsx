@@ -20,18 +20,26 @@ export const GameReviewsList = ({ reviews, handleReaction, hasMore, loadMore }) 
             </div>
             <p className="text-gray-800 mt-3 leading-relaxed">{review.review || "Без текста"}</p>
             <div className="flex gap-3 mt-4">
-              {['LIKE', 'DISLIKE', 'FUNNY'].map((type) => (
+            {['LIKE', 'DISLIKE', 'FUNNY'].map((type) => {
+              // Определяем правильное имя поля из DTO
+              const countKey = type === 'FUNNY' ? 'funnyCount' : `${type.toLowerCase()}sCount`;
+              const count = review[countKey] ?? 0; // Используем ?? вместо ||
+
+              return (
                 <button
                   key={type}
                   onClick={() => handleReaction(review.id, type)}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-sm transition border ${
-                    review.currentUserReaction === type ? 'bg-purple-50 text-purple-600 border-purple-200 font-bold' : 'bg-gray-50 text-gray-500 border-transparent hover:bg-gray-100'
+                    review.currentUserReaction === type 
+                      ? 'bg-purple-50 text-purple-600 border-purple-200 font-bold' 
+                      : 'bg-gray-50 text-gray-500 border-transparent hover:bg-gray-100'
                   }`}
                 >
-                  {type === 'LIKE' ? '👍' : type === 'DISLIKE' ? '👎' : '😂'} {review[`${type.toLowerCase()}sCount`] || review.funnyCount || 0}
+                  {type === 'LIKE' ? '👍' : type === 'DISLIKE' ? '👎' : '😂'} {count}
                 </button>
-              ))}
-            </div>
+              );
+            })}
+          </div>
           </div>
         ))}
       </div>
