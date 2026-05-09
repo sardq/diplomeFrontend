@@ -22,7 +22,36 @@ export default function ProfilePage() {
 
     loadReviews(0);
   }, []);
+  const handleAvatarChange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
+  // Валидация на фронте (не больше 5МБ)
+  if (file.size > 5 * 1024 * 1024) {
+    alert("Файл слишком большой! Максимум 5МБ");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file); // Имя 'file' должно совпадать с @RequestParam("file") в Java
+
+    try {
+      const res = await api.post("/users/avatar", formData, {
+        // ВАЖНО: Убираем ручной Content-Type, Axios сам его поставит правильно для FormData
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data" 
+        }
+      });
+      
+      // Обновляем картинку в интерфейсе
+      setUser({ ...user, avatarUrl: res.data });
+      alert("Аватар успешно обновлен!");
+    } catch (err) {
+      console.error("Ошибка загрузки:", err.response?.data || err.message);
+      alert("Ошибка загрузки. Проверьте консоль.");
+    } 
+  };
   const loadUserData = () => {
     api.get("/auth/me")
       .then((res) => {
@@ -77,9 +106,22 @@ export default function ProfilePage() {
         
         {/* Шапка профиля */}
         <div className="flex items-center gap-4 border-b pb-6">
-          <div className="w-20 h-16 rounded-full bg-purple-100 flex justify-center items-center text-purple-600 text-3xl font-bold">
-            {user.username[0].toUpperCase()}
-          </div>
+          <div className="relative group cursor-pointer">
+            <img 
+              src={user.avatarUrl} 
+              alt = {user.username[0].toUpperCase()}
+              className="w-24 h-24 rounded-full object-cover" 
+            />
+            <input 
+              type="file" 
+              onChange={handleAvatarChange} 
+              className="hidden" 
+              id="avatarInput" 
+            />
+            <label htmlFor="avatarInput" className="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs opacity-0 group-hover:opacity-100 rounded-full transition-opacity">
+                Сменить фото
+            </label>
+        </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{user.username}</h1>
             <p className="text-gray-500">{user.email}</p>
@@ -140,8 +182,6 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        {/* Секция избранного */}
-        {/* Секция избранного */}
         <div className="space-y-4">
           <div className="flex justify-between items-end">
             <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">

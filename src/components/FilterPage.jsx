@@ -130,31 +130,44 @@ export default function GamesPage() {
     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-400"
   />
 
-      <div className="grid grid-cols-5 gap-4">
-        {visibleTags.map(tag => (
-          <span
-            key={tag.id}
-            onClick={() => navigate(`/games?tag=${tag.slug}`)}
-            className={`px-2 py-1 rounded cursor-pointer transition text-center
-              ${tag.slug === tagSlug 
-                ? "bg-gray-300 font-semibold" 
-                : "hover:bg-gray-200"}`}
-          >
-            {tag.nameRu}
-          </span>
-        ))}
-      </div>
+      <div className="flex flex-wrap gap-2">
+    {/* Добавляем кнопку "Популярное", если она не в списке тегов */}
+    <span
+      onClick={() => navigate(`/games?tag=popular`)}
+      className={`px-4 py-1.5 rounded-full cursor-pointer text-xs font-medium transition-all border ${
+        tagSlug === "popular"
+          ? "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-200"
+          : "bg-gray-100 text-gray-600 border-transparent hover:bg-gray-200"
+      }`}
+    >
+    Популярное
+    </span>
 
-      {filteredTags.length > 5 && (
-        <div className="flex justify-center">
-          <button
-            onClick={() => setShowAllTags(prev => !prev)}
-            className="text-blue-500 hover:underline"
-          >
-            {showAllTags ? "Скрыть" : "Показать ещё"}
-          </button>
-        </div>
-      )}
+    {(showAllTags ? filteredTags : filteredTags.slice(0, 10)).map((tag) => (
+      <span
+        key={tag.id}
+        onClick={() => navigate(`/games?tag=${tag.slug}`)}
+        className={`px-4 py-1.5 rounded-full cursor-pointer text-xs font-medium transition-all border ${
+          tag.slug === tagSlug
+            ? "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-200"
+            : "bg-white text-gray-600 border-gray-200 hover:border-purple-400 hover:text-purple-600"
+        }`}
+      >
+        {tag.nameRu || tag.name}
+      </span>
+    ))}
+  </div>
+
+      {filteredTags.length > 10 && (
+    <div className="flex justify-center pt-2">
+      <button
+        onClick={() => setShowAllTags((prev) => !prev)}
+        className="text-purple-600 text-xs font-bold hover:text-purple-800 flex items-center gap-1 transition-colors"
+      >
+        {showAllTags ? "🔼 Скрыть список" : `+ Показать все теги (${filteredTags.length})`}
+      </button>
+    </div>
+  )}
     </div>
 
       <h2 className="text-2xl font-bold mb-6">{tagName}</h2>

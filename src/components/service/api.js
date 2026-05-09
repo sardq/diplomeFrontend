@@ -6,22 +6,7 @@ const api = axios.create({
     : '/api'
 });
 
-api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
-      
-      window.location.href = "/"; 
-    }
-    
-    return Promise.reject(error);
-  }
-);
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {

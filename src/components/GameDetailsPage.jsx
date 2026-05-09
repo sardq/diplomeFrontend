@@ -5,7 +5,7 @@ import api from "./service/api";
 import { GameHeader } from "./GameHeader";
 import { GameMedia } from "./GameMedia";
 import { GameReviewsList } from "./GameReviewsList";
-
+import { GameNews } from "./GameNews"; 
 export default function GameDetailsPage() {
   const { id } = useParams();
   const token = localStorage.getItem("token");
@@ -132,6 +132,7 @@ export default function GameDetailsPage() {
         trailerUrls={game.trailerUrls} 
         walkthroughUrls={game.walkthroughUrls}
       />
+      <GameNews articles={game.news} />
 
       {/* 3. Твой отзыв */}
       <div className="space-y-6">
