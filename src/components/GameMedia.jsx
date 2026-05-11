@@ -3,27 +3,20 @@ import LiteYouTubeEmbed from 'react-lite-youtube-embed';
 import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css';
 
 export const GameMedia = ({ screenshotUrls, trailerUrls, walkthroughUrls }) => {
-  // Состояние для текущего выбранного медиафайла
   const [activeMedia, setActiveMedia] = useState(null);
 
-  // Собираем все медиафайлы в один массив при изменении пропсов
   const mediaList = useMemo(() => {
     const items = [];
-
-    // 1. Добавляем трейлеры (Видео идут первыми, как в Steam)
     if (trailerUrls) {
       trailerUrls.forEach(id => {
         items.push({
           type: 'video',
           id: id,
-          // Ссылка на обложку видео YouTube
           thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
           badge: 'Трейлер'
         });
       });
     }
-
-    // 2. Добавляем прохождения
     if (walkthroughUrls) {
       walkthroughUrls.forEach(id => {
         items.push({
@@ -34,8 +27,6 @@ export const GameMedia = ({ screenshotUrls, trailerUrls, walkthroughUrls }) => {
         });
       });
     }
-
-    // 3. Добавляем скриншоты
     if (screenshotUrls) {
       screenshotUrls.forEach(url => {
         items.push({
@@ -46,58 +37,55 @@ export const GameMedia = ({ screenshotUrls, trailerUrls, walkthroughUrls }) => {
         });
       });
     }
-
     return items;
   }, [screenshotUrls, trailerUrls, walkthroughUrls]);
 
-  // Устанавливаем первый элемент активным по умолчанию
   useEffect(() => {
     if (mediaList.length > 0) {
       setActiveMedia(mediaList[0]);
     }
   }, [mediaList]);
 
-  // Если медиафайлов вообще нет, ничего не рендерим
   if (mediaList.length === 0) return null;
 
   return (
-    <div className="bg-gray-900 rounded-xl shadow-2xl overflow-hidden">
+    <div className="bg-black rounded-[2rem] overflow-hidden border border-gray-800">
       
-      {/* --- ГЛАВНЫЙ ЭКРАН (Большой) --- */}
-      <div className="w-full aspect-video bg-black relative flex items-center justify-center">
+      {/* --- ГЛАВНЫЙ ЭКРАН (Увеличенная высота) --- */}
+      <div className="w-full h-[350px] md:h-[500px] lg:h-[600px] bg-black relative flex items-center justify-center overflow-hidden">
         
-        {/* Бейдж с типом контента (Трейлер/Скриншот) */}
+        {/* Информационный бейдж */}
         {activeMedia && (
-          <div className="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider">
+          <div className="absolute top-6 left-6 z-10 bg-purple-600/90 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
             {activeMedia.badge}
           </div>
         )}
 
-        {/* Рендеринг активного элемента */}
+        {/* Рендеринг */}
         {activeMedia?.type === 'video' ? (
-          <div className="w-full h-full">
+          <div className="w-full h-full animate-fade-in">
             <LiteYouTubeEmbed 
               id={activeMedia.id}
               title={activeMedia.badge}
-              wrapperClass="yt-lite w-full h-full"
+              wrapperClass="yt-lite w-full h-full flex items-center"
               playerClass="lty-playbtn"
-              poster="maxresdefault" // Загружаем самое высокое качество обложки для большого экрана
+              poster="maxresdefault"
               noCookie={true}
-              params="modestbranding=1&rel=0&iv_load_policy=3&fs=0&color=white"
+              params="modestbranding=1&rel=0&iv_load_policy=3&fs=1&color=white"
             />
           </div>
         ) : (
           <img 
             src={activeMedia?.url} 
             alt="Main Screenshot" 
-            className="w-full h-full object-contain cursor-zoom-in"
+            className="w-full h-full object-contain animate-fade-in cursor-zoom-in"
             onClick={() => window.open(activeMedia?.url, "_blank")}
           />
         )}
       </div>
 
-      {/* --- ЛЕНТА МИНИАТЮР (Как в Steam) --- */}
-      <div className="bg-gray-800 p-3 overflow-x-auto flex gap-2 custom-scrollbar">
+      {/* --- ЛЕНТА МИНИАТЮР (Без лишних теней) --- */}
+      <div className="bg-[#1a1a1a] p-4 flex gap-3 overflow-x-auto custom-scrollbar border-t border-gray-800">
         {mediaList.map((item, index) => {
           const isActive = activeMedia === item;
 
@@ -105,22 +93,22 @@ export const GameMedia = ({ screenshotUrls, trailerUrls, walkthroughUrls }) => {
             <div 
               key={index}
               onClick={() => setActiveMedia(item)}
-              className={`relative flex-shrink-0 w-32 md:w-40 aspect-video cursor-pointer transition-all duration-200 border-2 rounded-lg overflow-hidden ${
-                isActive ? 'border-blue-500 opacity-100' : 'border-transparent opacity-50 hover:opacity-100 hover:border-gray-500'
+              className={`relative flex-shrink-0 w-28 md:w-36 aspect-video cursor-pointer transition-all duration-300 rounded-xl overflow-hidden border-2 ${
+                isActive 
+                  ? 'border-purple-500 scale-105 z-10' 
+                  : 'border-transparent opacity-40 hover:opacity-100 hover:border-gray-600'
               }`}
             >
-              {/* Миниатюра */}
               <img 
                 src={item.thumbnail} 
                 alt="thumbnail" 
                 className="w-full h-full object-cover"
               />
               
-              {/* Иконка Play, если это видео (Steam style) */}
               {item.type === 'video' && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                  <div className="w-8 h-8 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
-                    <span className="text-white text-sm ml-1">▶</span>
+                <div className="absolute inset-0 flex items-center justify-center bg-purple-900/20">
+                  <div className="w-7 h-7 bg-black/80 rounded-full flex items-center justify-center border border-white/20">
+                    <span className="text-white text-[10px] ml-0.5">▶</span>
                   </div>
                 </div>
               )}
@@ -129,6 +117,14 @@ export const GameMedia = ({ screenshotUrls, trailerUrls, walkthroughUrls }) => {
         })}
       </div>
 
+      {/* Стили для плавности (добавь в свой CSS или оставь здесь) */}
+      <style>{`
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .custom-scrollbar::-webkit-scrollbar { height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      `}</style>
     </div>
   );
 };

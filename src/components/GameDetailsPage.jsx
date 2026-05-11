@@ -6,6 +6,7 @@ import { GameHeader } from "./GameHeader";
 import { GameMedia } from "./GameMedia";
 import { GameReviewsList } from "./GameReviewsList";
 import { GameNews } from "./GameNews"; 
+
 export default function GameDetailsPage() {
   const { id } = useParams();
   const token = localStorage.getItem("token");
@@ -173,6 +174,7 @@ export default function GameDetailsPage() {
         reviews={reviews} 
         handleReaction={handleReaction} 
         hasMore={hasMore} 
+        navigate={navigate} 
         loadMore={() => { setPage(p => p + 1); loadReviews(page + 1, true); }} 
       />
 

@@ -9,80 +9,89 @@ export default function Header({ email }) {
 
   useEffect(() => {
     if (!token) {
-      toast.info("Авторизуйтесь, чтобы получать больше рекомендаций!", {
-        position: "top-right",
-        autoClose: 10000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
+      toast.info("Авторизуйтесь, чтобы система подобрала идеальные игры для вас!", {
+        position: "bottom-center", // Переместил вниз, чтобы не перекрывать навигацию
+        autoClose: 5000,
+        theme: "dark", // Темная тема выглядит более "премиально"
       });
     }
   }, [token]);
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userId"); // Не забываем очищать всё
     navigate("/login");
   };
 
   return (
     <>
-      <header className="fixed top-0 left-0 w-full z-50 bg-white shadow-sm border-b h-20">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center h-full">
+      <header className="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 h-20 transition-all">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 flex justify-between items-center h-full">
+          
+          {/* LOGO */}
           <div
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 cursor-pointer"
+            className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="bg-blue-600 text-white px-3 py-1 rounded-lg font-bold">
-              GR
+            <div className="bg-gradient-to-tr from-purple-600 to-indigo-600 text-white w-10 h-10 flex items-center justify-center rounded-xl font-black shadow-lg shadow-purple-200 group-hover:scale-110 transition-transform">
+              G
             </div>
-            <span className="font-semibold text-lg">GameReco</span>
+            <span className="font-black text-xl tracking-tighter text-gray-900 uppercase italic">
+              Game<span className="text-purple-600">Rec</span>
+            </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          {/* ACTIONS */}
+          <div className="flex items-center gap-3 md:gap-6">
             {token ? (
               <>
-                {email && (
-                  <span className="text-sm text-gray-500 hidden sm:block">
-                    {email}
-                  </span>
-                )}
+                <div className="hidden lg:flex flex-col items-end">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Аккаунт</span>
+                  <span className="text-sm font-bold text-gray-700">{email}</span>
+                </div>
 
                 <button
                   onClick={() => navigate("/profile")}
-                  className="bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300 transition"
+                  className="bg-gray-100 text-gray-700 px-5 py-2.5 rounded-2xl font-bold text-xs hover:bg-purple-100 hover:text-purple-700 transition-all"
                 >
-                  Профиль
+                  ПРОФИЛЬ
                 </button>
 
                 <button
                   onClick={logout}
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+                  className="bg-red-50 text-red-500 px-5 py-2.5 rounded-2xl font-bold text-xs hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-95"
                 >
-                  Выйти
+                  ВЫХОД
                 </button>
               </>
             ) : (
-              <>
+              <div className="flex items-center gap-2 md:gap-4">
                 <button
                   onClick={() => navigate("/login")}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                  className="text-gray-600 px-4 py-2 font-bold text-xs hover:text-purple-600 transition-colors uppercase tracking-widest"
                 >
                   Войти
                 </button>
                 <button
                   onClick={() => navigate("/register")}
-                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
+                  className="bg-gray-900 text-white px-6 py-2.5 rounded-2xl font-black text-xs hover:bg-purple-600 transition-all shadow-xl shadow-gray-200 active:scale-95 uppercase tracking-widest"
                 >
                   Регистрация
                 </button>
-              </>
+              </div>
             )}
           </div>
         </div>
       </header>
 
-      <ToastContainer />
+      {/* Контейнер для уведомлений (логика сохранена) */}
+      <ToastContainer 
+        limit={1} 
+        toastStyle={{ borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}
+      />
+      
+      {/* Отступ под шапку, чтобы контент не залезал под неё */}
+      <div className="h-2"></div>
     </>
   );
 }
