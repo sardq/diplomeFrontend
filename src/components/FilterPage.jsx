@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import axios from "axios";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import api from "./service/api";
 
 export default function GamesPage() {
   // === СОСТОЯНИЯ (Логика сохранена) ===
@@ -23,7 +23,7 @@ export default function GamesPage() {
 
   // === ЗАГРУЗКА ДАННЫХ (Логика сохранена) ===
   useEffect(() => {
-    axios.get("/api/tags?page=0&size=40")
+    api.get("/tags?page=0&size=40")
       .then(res => {
           const tags = res.data.content || res.data || [];
           setAllTags(tags);
@@ -38,7 +38,7 @@ export default function GamesPage() {
         setFilteredTags(allTags);
         return;
       }
-      axios.get(`/api/tags/search?search=${tagSearch}&size=20`)
+      api.get(`/tags/search?search=${tagSearch}&size=20`)
         .then(res => setFilteredTags(res.data || []))
         .catch(console.error);
     }, 300);
@@ -49,14 +49,14 @@ export default function GamesPage() {
     setLoadingMore(true);
     let url;
     if (tagSlug === "popular") {
-      url = `/api/games/popular?page=${pageNum}&size=${pageSize}`;
+      url = `/games/popular?page=${pageNum}&size=${pageSize}`;
     } else {
       const tag = allTags.find(t => t.slug === tagSlug);
       if (!tag) { setLoadingMore(false); return; }
-      url = `/api/games/tag/${tag.id}?page=${pageNum}&size=${pageSize}`;
+      url = `/games/tag/${tag.id}?page=${pageNum}&size=${pageSize}`;
     }
 
-    axios.get(url)
+    api.get(url)
       .then(res => {
         const newGames = res.data || [];
         setHasMore(newGames.length === pageSize);

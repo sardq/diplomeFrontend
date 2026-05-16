@@ -1,16 +1,14 @@
 # Stage 1: Build
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --network-timeout 1000000
 COPY . .
-RUN npm run build
+RUN yarn build
 
 FROM nginx:stable-alpine
 COPY --from=build /app/build /usr/share/nginx/html
 
 # Копируем наш файл конфигурации Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]

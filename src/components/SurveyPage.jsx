@@ -54,33 +54,41 @@ export default function PreferencesPage() {
   };
 
   const Rating = ({ tag }) => {
-    const rating = selectedTags[tag.id]?.rating || 0;
-    const percentage = (rating / 5) * 100;
+  const rating = selectedTags[tag.id]?.rating || 0;
+  const percentage = (rating / 5) * 100;
 
-    return (
-      <div
-        className="relative inline-block w-full max-w-[200px] text-3xl mt-3 cursor-pointer group"
-        onClick={(e) => {
-          const rect = e.currentTarget.getBoundingClientRect();
-          const clickX = e.clientX - rect.left;
-          const newRating = Math.round((clickX / rect.width) * 5 * 2) / 2;
-          rateTag(tag, newRating);
-        }}
-      >
-        {/* Фоновые звезды */}
-        <div className="flex justify-between text-gray-100 group-hover:text-gray-200 transition-colors">
-          {[1, 2, 3, 4, 5].map(num => <span key={num}>★</span>)}
-        </div>
-        {/* Активные звезды */}
-        <div
-          className="absolute top-0 left-0 overflow-hidden flex justify-between text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]"
-          style={{ width: `${percentage}%` }}
-        >
-          {[1, 2, 3, 4, 5].map(num => <span key={num} className="flex-shrink-0">★</span>)}
-        </div>
+  return (
+    <div
+      className="relative inline-block text-3xl mt-3 cursor-pointer group"
+      // Убираем w-full, задаем ширину через контент (5 звезд * размер шрифта)
+      style={{ width: '150px' }} 
+      onClick={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        // Округляем до 0.5
+        const newRating = Math.min(5, Math.max(0, Math.round((clickX / rect.width) * 10) / 2));
+        rateTag(tag, newRating);
+      }}
+    >
+      {/* Фоновые звезды - используем flex, но с фиксированным размером для каждой звезды */}
+      <div className="flex text-gray-100">
+        {[1, 2, 3, 4, 5].map(num => (
+          <span key={num} className="w-[30px] flex justify-center">★</span>
+        ))}
       </div>
-    );
-  };
+      
+      {/* Активные звезды - абсолютное позиционирование точно поверх фоновых */}
+      <div
+        className="absolute top-0 left-0 overflow-hidden flex text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.4)] pointer-events-none"
+        style={{ width: `${percentage}%` }}
+      >
+        {[1, 2, 3, 4, 5].map(num => (
+          <span key={num} className="w-[30px] flex justify-center">★</span>
+        ))}
+      </div>
+    </div>
+  );
+};
 
   return (
     <div className="bg-[#fcfcff] min-h-screen pb-20 p-4 md:p-10">

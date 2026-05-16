@@ -117,13 +117,13 @@ export const GameHeader = ({ game, isFavorite, toggleFavorite, isAuth, navigate 
         {/* ТЕГИ И ДЕЙСТВИЯ */}
         <div className="mt-auto flex flex-col gap-6 pt-6 border-t border-gray-50">
           <div className="flex flex-wrap gap-2">
-            {game.tagsRu?.map((tag, idx) => (
+            {game.tags?.map((tag, idx) => (
               <span 
                 key={idx} 
                 onClick={() => navigate(`/games?tag=${game.tags[idx].toLowerCase().replace(/\s+/g, "-")}`)}
                 className="px-3 py-1.5 bg-purple-50 text-purple-600 rounded-xl text-[10px] font-black cursor-pointer hover:bg-purple-600 hover:text-white transition-all border border-purple-100 uppercase"
               >
-                {tag}
+                {tag.nameRu}
               </span>
             ))}
           </div>

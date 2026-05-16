@@ -55,7 +55,7 @@ export default function ProfilePage() {
   };
 
   const saveBirthDate = () => {
-    api.put("/users/profile", { birthDate: newBirthDate })
+    api.put("/users/update-birthdate", { birthDate: newBirthDate })
       .then((res) => { setIsEditingDate(false); setUser(res.data); })
       .catch((err) => console.error(err));
   };
