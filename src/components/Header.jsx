@@ -10,16 +10,16 @@ export default function Header({ email }) {
   useEffect(() => {
     if (!token) {
       toast.info("Авторизуйтесь, чтобы система подобрала идеальные игры для вас!", {
-        position: "bottom-center", // Переместил вниз, чтобы не перекрывать навигацию
+        position: "bottom-center", 
         autoClose: 5000,
-        theme: "dark", // Темная тема выглядит более "премиально"
+        theme: "dark", 
       });
     }
   }, [token]);
 
   const logout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("userId"); // Не забываем очищать всё
+    localStorage.removeItem("userId");
     navigate("/login");
   };
 
@@ -84,13 +84,11 @@ export default function Header({ email }) {
         </div>
       </header>
 
-      {/* Контейнер для уведомлений (логика сохранена) */}
       <ToastContainer 
         limit={1} 
         toastStyle={{ borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}
       />
       
-      {/* Отступ под шапку, чтобы контент не залезал под неё */}
       <div className="h-2"></div>
     </>
   );

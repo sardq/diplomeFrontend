@@ -51,17 +51,14 @@ export const GameMedia = ({ screenshotUrls, trailerUrls, walkthroughUrls }) => {
   return (
     <div className="bg-black rounded-[2rem] overflow-hidden border border-gray-800">
       
-      {/* --- ГЛАВНЫЙ ЭКРАН (Увеличенная высота) --- */}
       <div className="w-full h-[350px] md:h-[500px] lg:h-[600px] bg-black relative flex items-center justify-center overflow-hidden">
         
-        {/* Информационный бейдж */}
         {activeMedia && (
           <div className="absolute top-6 left-6 z-10 bg-purple-600/90 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
             {activeMedia.badge}
           </div>
         )}
 
-        {/* Рендеринг */}
         {activeMedia?.type === 'video' ? (
           <div className="w-full h-full animate-fade-in">
             <LiteYouTubeEmbed 
@@ -84,7 +81,6 @@ export const GameMedia = ({ screenshotUrls, trailerUrls, walkthroughUrls }) => {
         )}
       </div>
 
-      {/* --- ЛЕНТА МИНИАТЮР (Без лишних теней) --- */}
       <div className="bg-[#1a1a1a] p-4 flex gap-3 overflow-x-auto custom-scrollbar border-t border-gray-800">
         {mediaList.map((item, index) => {
           const isActive = activeMedia === item;
@@ -117,7 +113,6 @@ export const GameMedia = ({ screenshotUrls, trailerUrls, walkthroughUrls }) => {
         })}
       </div>
 
-      {/* Стили для плавности (добавь в свой CSS или оставь здесь) */}
       <style>{`
         .animate-fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

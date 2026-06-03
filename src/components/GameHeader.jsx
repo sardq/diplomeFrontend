@@ -1,7 +1,6 @@
 import React from 'react';
 
 export const GameHeader = ({ game, isFavorite, toggleFavorite, isAuth, navigate }) => {
-  // 1. Логика фильтрации сделок (CheapShark)
   const uniqueDeals = [];
   const seenStores = new Set();
   if (game.deals && Array.isArray(game.deals)) {
@@ -30,7 +29,6 @@ export const GameHeader = ({ game, isFavorite, toggleFavorite, isAuth, navigate 
   return (
     <div className="bg-white rounded-[2rem] flex flex-col lg:flex-row gap-8 p-6 md:p-8 relative overflow-hidden border border-gray-100 shadow-sm">
       
-      {/* Кнопка Назад */}
       <button 
         onClick={() => navigate(-1)} 
         className="absolute top-6 right-6 z-20 bg-gray-50 p-2 px-3 rounded-xl hover:bg-gray-100 transition-colors border border-gray-100 font-black text-[9px] uppercase tracking-widest text-gray-400"
@@ -38,7 +36,6 @@ export const GameHeader = ({ game, isFavorite, toggleFavorite, isAuth, navigate 
         ← Назад
       </button>
 
-      {/* Постер */}
       <div className="w-full lg:w-72 flex-shrink-0">
         <img 
           src={game.posterUrl} 
@@ -52,7 +49,6 @@ export const GameHeader = ({ game, isFavorite, toggleFavorite, isAuth, navigate 
           {game.name}
         </h1>
 
-        {/* РЕЙТИНГИ */}
         <div className="flex flex-wrap gap-4 md:gap-8 mb-6">
           <div className="flex flex-col">
             <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Глобальный рейтинг</span>
@@ -73,21 +69,17 @@ export const GameHeader = ({ game, isFavorite, toggleFavorite, isAuth, navigate 
             </div>
           )}
         </div>
-
-        {/* ПЛАТФОРМЫ */}
         <div className="flex flex-wrap gap-2 mb-4">
           {game.platforms?.map(p => (
             <span key={p} className="px-2 py-1 bg-gray-50 text-gray-400 text-[9px] font-black rounded border border-gray-100 uppercase">{p}</span>
           ))}
         </div>
 
-        {/* ОПИСАНИЕ - с зажимом текста и прокруткой */}
         <div 
           className="text-gray-500 text-sm leading-relaxed mb-6 max-h-32 overflow-y-auto pr-2 custom-scrollbar" 
           dangerouslySetInnerHTML={{ __html: game.descriptionRu || game.description }} 
         />
 
-        {/* МОНИТОРИНГ ЦЕН (CheapShark) */}
         {uniqueDeals.length > 0 && (
           <div className="space-y-3 mb-8">
             <span className="text-[9px] font-black text-gray-300 uppercase tracking-[0.3em]">Лучшие цены</span>
@@ -114,7 +106,6 @@ export const GameHeader = ({ game, isFavorite, toggleFavorite, isAuth, navigate 
           </div>
         )}
 
-        {/* ТЕГИ И ДЕЙСТВИЯ */}
         <div className="mt-auto flex flex-col gap-6 pt-6 border-t border-gray-50">
           <div className="flex flex-wrap gap-2">
             {game.tags?.map((tag, idx) => (
@@ -129,7 +120,6 @@ export const GameHeader = ({ game, isFavorite, toggleFavorite, isAuth, navigate 
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {/* ОФИЦИАЛЬНЫЕ ССЫЛКИ НА МАГАЗИНЫ (RAWG) */}
             {game.storeLinks?.map((url, i) => (
               <a
                 key={i}
@@ -142,7 +132,6 @@ export const GameHeader = ({ game, isFavorite, toggleFavorite, isAuth, navigate 
               </a>
             ))}
 
-            {/* ИЗБРАННОЕ */}
             <button
               onClick={toggleFavorite}
               className={`px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-xl ${

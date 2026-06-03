@@ -5,7 +5,6 @@ export const GameReviewsList = ({ reviews, handleReaction, hasMore, loadMore }) 
 
   return (
     <div className="bg-white p-6 md:p-10 rounded-[2rem] border border-gray-100">
-      {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
         <div>
           <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tighter flex items-center gap-3">
@@ -31,7 +30,6 @@ export const GameReviewsList = ({ reviews, handleReaction, hasMore, loadMore }) 
               className="group p-6 md:p-8 rounded-[2rem] bg-white border border-gray-100 hover:border-purple-200 transition-all duration-300"
             >
               <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-                {/* АВТОР */}
                 <div 
                   className="flex items-center gap-4 cursor-pointer"
                   onClick={() => navigate(`/user/${review.authorId}`)}
@@ -55,7 +53,6 @@ export const GameReviewsList = ({ reviews, handleReaction, hasMore, loadMore }) 
                   </div>
                 </div>
 
-                {/* РЕЙТИНГ */}
                 {review.rating != null && (
                   <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
                     <span className="text-yellow-500 font-bold">★</span>
@@ -65,7 +62,6 @@ export const GameReviewsList = ({ reviews, handleReaction, hasMore, loadMore }) 
                 )}
               </div>
 
-              {/* ТЕКСТ ОТЗЫВА */}
               <div className="mt-8">
                 <p className="text-gray-600 leading-relaxed text-sm md:text-base border-l-4 border-purple-100 pl-6 italic">
                   {review.review && review.review.trim() !== "" ? (
@@ -78,7 +74,6 @@ export const GameReviewsList = ({ reviews, handleReaction, hasMore, loadMore }) 
                 </p>
               </div>
 
-              {/* РЕАКЦИИ (RecSys Signals) */}
               <div className="flex flex-wrap gap-2 mt-10 pt-6 border-t border-gray-50">
                 {['LIKE', 'DISLIKE', 'FUNNY'].map((type) => {
                   const countKey = type === 'FUNNY' ? 'funnyCount' : `${type.toLowerCase()}sCount`;
@@ -113,7 +108,6 @@ export const GameReviewsList = ({ reviews, handleReaction, hasMore, loadMore }) 
         </div>
       )}
 
-      {/* КНОПКА ЗАГРУЗИТЬ ЕЩЕ */}
       {hasMore && reviews.length > 0 && (
         <div className="flex justify-center mt-12">
           <button 

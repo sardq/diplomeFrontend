@@ -10,7 +10,7 @@ export default function PreferencesPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get(`/tags/search?search=${search}&size=8`) // Увеличил выдачу до 8
+    api.get(`/tags/search?search=${search}&size=8`) 
       .then((res) => setTags(res.data || []))
       .catch(console.error);
   }, [search]);
@@ -53,48 +53,42 @@ export default function PreferencesPage() {
       .finally(() => setIsSaving(false));
   };
 
-  const Rating = ({ tag }) => {
-  const rating = selectedTags[tag.id]?.rating || 0;
-  const percentage = (rating / 5) * 100;
+ const Rating = ({ tag }) => {
+    const rating = selectedTags[tag.id]?.rating || 0;
+    const percentage = (rating / 5) * 100;
 
-  return (
-    <div
-      className="relative inline-block text-3xl mt-3 cursor-pointer group"
-      // Убираем w-full, задаем ширину через контент (5 звезд * размер шрифта)
-      style={{ width: '150px' }} 
-      onClick={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        // Округляем до 0.5
-        const newRating = Math.min(5, Math.max(0, Math.round((clickX / rect.width) * 10) / 2));
-        rateTag(tag, newRating);
-      }}
-    >
-      {/* Фоновые звезды - используем flex, но с фиксированным размером для каждой звезды */}
-      <div className="flex text-gray-100">
-        {[1, 2, 3, 4, 5].map(num => (
-          <span key={num} className="w-[30px] flex justify-center">★</span>
-        ))}
-      </div>
-      
-      {/* Активные звезды - абсолютное позиционирование точно поверх фоновых */}
+    return (
       <div
-        className="absolute top-0 left-0 overflow-hidden flex text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.4)] pointer-events-none"
-        style={{ width: `${percentage}%` }}
+        className="relative inline-flex mt-3 cursor-pointer group"
+        onClick={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const clickX = e.clientX - rect.left;
+          const newRating = Math.min(5, Math.max(0, Math.round((clickX / rect.width) * 10) / 2));
+          rateTag(tag, newRating);
+        }}
       >
-        {[1, 2, 3, 4, 5].map(num => (
-          <span key={num} className="w-[30px] flex justify-center">★</span>
-        ))}
+        <div className="flex text-3xl text-gray-200 group-hover:text-gray-300 transition-colors tracking-widest">
+          ★★★★★
+        </div>
+        
+        <div
+          className="absolute top-0 left-0 flex text-3xl tracking-widest text-transparent bg-clip-text drop-shadow-[0_0_8px_rgba(250,204,21,0.5)] pointer-events-none"
+          style={{ 
+            backgroundImage: `linear-gradient(90deg, #FACC15 ${percentage}%, transparent ${percentage}%)`,
+            WebkitBackgroundClip: 'text', 
+            WebkitTextFillColor: 'transparent'
+          }}
+        >
+          ★★★★★
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
   return (
     <div className="bg-[#fcfcff] min-h-screen pb-20 p-4 md:p-10">
       <div className="max-w-5xl mx-auto space-y-10">
         
-        {/* ХЕДЕР С НАВИГАЦИЕЙ */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 pb-8">
           <div>
             <button 
@@ -111,7 +105,6 @@ export default function PreferencesPage() {
           </div>
         </div>
 
-        {/* ПОИСК ТЕГОВ */}
         <div className="relative group">
           <span className="absolute left-6 top-5 text-xl group-focus-within:scale-110 transition-transform">🔍</span>
           <input
@@ -123,7 +116,6 @@ export default function PreferencesPage() {
           />
         </div>
 
-        {/* СЕТКА ТЕГОВ ДЛЯ ВЫБОРА */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {tags.map(tag => (
             <div
@@ -142,7 +134,6 @@ export default function PreferencesPage() {
           ))}
         </div>
 
-        {/* ВЫБРАННЫЕ ТЕГИ */}
         <div className="space-y-6 pt-10 border-t border-gray-100">
           <div className="flex items-center justify-between px-4">
             <h2 className="text-xl font-black text-gray-900 uppercase tracking-widest italic">🎯 Твоя база интересов</h2>
@@ -180,7 +171,6 @@ export default function PreferencesPage() {
           )}
         </div>
 
-        {/* ФУТЕР С КНОПКОЙ СОХРАНЕНИЯ */}
         <div className="flex justify-center pt-10">
           <button
             onClick={handleSave}

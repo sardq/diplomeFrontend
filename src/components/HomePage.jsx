@@ -57,15 +57,12 @@ export default function HomePage() {
     } catch (err) { console.error(err); } finally { setIsRecalculating(false); }
   };
 
-  // ИСПРАВЛЕННАЯ ЛОГИКА ФИЛЬТРАЦИИ ТЕГОВ
   useEffect(() => {
-    // Если строка поиска пуста — сразу показываем все загруженные теги
     if (!tagSearchTerm.trim()) {
       setFilteredTags(allTags);
       return;
     }
 
-    // Если пользователь пишет — фильтруем через API с задержкой
     const timeout = setTimeout(() => {
       api.get(`/tags/search?search=${encodeURIComponent(tagSearchTerm)}&size=20`)
         .then((res) => setFilteredTags(res.data || []))
@@ -73,7 +70,7 @@ export default function HomePage() {
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [tagSearchTerm, allTags]); // Зависимость от allTags важна для первого рендера
+  }, [tagSearchTerm, allTags]); 
 
   const loadPopularGames = (size = initialGameLoad) => {
     api.get(`/games/popular?size=${size}`).then((res) => setPopularGames(res.data));
@@ -118,7 +115,7 @@ export default function HomePage() {
     api.get(`/tags?page=0&size=40`).then((res) => {
       const tags = res.data.content || res.data || [];
       setAllTags(tags);
-      setFilteredTags(tags); // Инициализируем фильтр сразу при загрузке
+      setFilteredTags(tags); 
     });
   };
 
@@ -149,7 +146,6 @@ export default function HomePage() {
       .then((res) => setSearchResults(res.data));
   };
 
-  // === КОМПОНЕНТЫ ===
 
   const GameCard = ({ game }) => {
     return (
@@ -205,7 +201,6 @@ export default function HomePage() {
   return (
     <div className="bg-[#f8f9ff] min-h-screen pb-20">
       
-      {/* STICKY HEADER */}
       <div className="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-gray-100 mb-8">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row gap-4 items-center">
            <div className="relative w-full md:flex-1">
@@ -222,7 +217,6 @@ export default function HomePage() {
 
       <div className="max-w-7xl mx-auto px-6 space-y-16">
         
-        {/* ТЕГ-ФИЛЬТР (ИСПРАВЛЕННЫЙ) */}
         {showTagFilter && (
           <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl border border-gray-100 animate-slide-down relative z-20">
               <div className="flex justify-between items-center mb-6 px-2">
@@ -239,7 +233,6 @@ export default function HomePage() {
               />
 
               <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                  {/* Кнопка сброса */}
                   <span onClick={() => {navigate(`/games?tag=popular`); setShowTagFilter(false)}} 
                         className="px-4 py-2 rounded-xl text-[10px] font-black bg-orange-50 text-orange-600 border border-orange-100 hover:bg-orange-600 hover:text-white transition-all cursor-pointer uppercase">🔥 Популярное</span>
                   
@@ -257,7 +250,6 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* ОСНОВНОЙ КОНТЕНТ (РЕКОМЕНДАЦИИ, ПОПУЛЯРНОЕ И Т.Д.) */}
         {searchTerm ? (
           <section className="space-y-8">
             <h2 className="text-3xl font-black text-gray-900 border-l-8 border-purple-500 pl-4 uppercase tracking-tighter italic">Результаты поиска</h2>
@@ -289,7 +281,6 @@ export default function HomePage() {
               </section>
             )}
 
-            {/* POPULAR */}
             <section className="space-y-10">
               <h2 className="text-3xl font-black text-gray-900 flex items-center gap-4 tracking-tighter uppercase">
                 <span className="bg-orange-500 text-white p-2 rounded-2xl text-xl shadow-lg shadow-orange-200">🔥</span> Популярные новинки
@@ -302,7 +293,6 @@ export default function HomePage() {
               </div>
             </section>
 
-            {/* TAG SECTIONS */}
             <div className="space-y-24">
                 {isAuth && recommendedTags.length > 0 && (
                   <div className="space-y-16 border-t border-gray-100 pt-16">

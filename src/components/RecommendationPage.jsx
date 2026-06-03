@@ -13,7 +13,6 @@ export default function RecommendationsPage() {
     api.get(`/recommendations/sessions/user`)
       .then(res => {
         setSessions(res.data);
-        // Автоматически загружаем последнюю сессию, если список не пуст
         if (res.data.length > 0) {
           loadSessionDetails(res.data[0].id);
         }
@@ -35,7 +34,6 @@ export default function RecommendationsPage() {
     <div className="bg-[#fcfcff] min-h-screen pb-20 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         
-        {/* ХЕДЕР */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <button 
             onClick={() => navigate("/")} 
@@ -47,10 +45,8 @@ export default function RecommendationsPage() {
           </div>
         </div>
 
-        {/* ОСНОВНОЙ КОНТЕНТ */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
           
-          {/* ЛЕВАЯ КОЛОНКА: СПИСОК СЕССИЙ */}
           <div className="lg:col-span-1 space-y-4">
             <h2 className="px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Ваши подборки</h2>
             <div className="flex lg:flex-col gap-3 overflow-x-auto pb-4 lg:pb-0 custom-scrollbar">
@@ -86,7 +82,6 @@ export default function RecommendationsPage() {
             </div>
           </div>
 
-          {/* ПРАВАЯ КОЛОНКА: ДЕТАЛИ СЕССИИ */}
           <div className="lg:col-span-3">
             {selectedSession ? (
               <div className={`bg-white rounded-[2.5rem] p-6 md:p-10 border border-gray-100 shadow-sm transition-opacity duration-300 ${isLoading ? 'opacity-50' : 'opacity-100'}`}>

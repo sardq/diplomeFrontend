@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import api from "./service/api";
 
 export default function FavoritesPage() {
-  // === СОСТОЯНИЯ (Логика сохранена) ===
   const [favorites, setFavorites] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [search, setSearch] = useState("");
@@ -14,12 +13,10 @@ export default function FavoritesPage() {
 
   const navigate = useNavigate();
 
-  // 1. Загрузка тегов для фильтра
   useEffect(() => {
     api.get("/tags?page=0&size=100").then(res => setAllTags(res.data || []));
   }, []);
 
-  // 2. Сброс и загрузка при изменении фильтров
   useEffect(() => {
     fetchFavorites(0, false);
   }, [search, selectedTag]);
@@ -46,7 +43,6 @@ export default function FavoritesPage() {
   return (
     <div className="bg-gray-50 min-h-screen pb-20">
       
-      {/* HEADER С НАВИГАЦИЕЙ */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <button
@@ -61,13 +57,12 @@ export default function FavoritesPage() {
             ❤️ Моё Избранное
           </h1>
           
-          <div className="w-10 sm:w-20" /> {/* Балансир для центровки */}
+          <div className="w-10 sm:w-20" />
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto p-6 space-y-8">
         
-        {/* ПАНЕЛЬ ФИЛЬТРОВ */}
         <div className="bg-white p-6 rounded-[32px] shadow-xl shadow-gray-200/50 flex flex-col md:flex-row gap-4 border border-gray-50">
           <div className="relative flex-1">
             <span className="absolute left-4 top-3 text-gray-400">🔍</span>
@@ -141,7 +136,6 @@ export default function FavoritesPage() {
           </div>
         )}
 
-        {/* КНОПКА ЗАГРУЗИТЬ ЕЩЕ */}
         {hasMore && favorites.length > 0 && (
           <div className="flex justify-center mt-12">
             <button 

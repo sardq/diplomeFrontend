@@ -3,7 +3,6 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import api from "./service/api";
 
 export default function GamesPage() {
-  // === СОСТОЯНИЯ (Логика сохранена) ===
   const [allTags, setAllTags] = useState([]);
   const [games, setGames] = useState([]);
   const [page, setPage] = useState(0);
@@ -21,7 +20,6 @@ export default function GamesPage() {
   const tagSlug = searchParams.get("tag") || "popular"; 
   const pageSize = 10;
 
-  // === ЗАГРУЗКА ДАННЫХ (Логика сохранена) ===
   useEffect(() => {
     api.get("/tags?page=0&size=40")
       .then(res => {
@@ -95,7 +93,6 @@ export default function GamesPage() {
     }, 150);
   };
 
-  // === КОМПОНЕНТ КАРТОЧКИ ===
   const GameCard = ({ game, onClick }) => (
     <div 
       onClick={onClick} 
@@ -125,7 +122,6 @@ export default function GamesPage() {
           </div>
         </div>
         
-        {/* Описание с очисткой от HTML и ограничением строк */}
         <p className="text-gray-500 mt-3 text-sm line-clamp-3 leading-relaxed">
           {game.description?.replace(/<[^>]*>?/gm, '') || "Описание отсутствует..."}
         </p>
@@ -140,7 +136,6 @@ export default function GamesPage() {
   return (
     <div className="bg-gray-50 min-h-screen pb-20">
       
-      {/* СЕКЦИЯ ФИЛЬТРОВ */}
       <div className="max-w-5xl mx-auto pt-8 px-4">
         <div className="bg-white p-8 rounded-[32px] shadow-xl shadow-gray-200/50 space-y-6 border border-white">
           <div className="relative">
@@ -192,7 +187,6 @@ export default function GamesPage() {
         </div>
       </div>
 
-      {/* СПИСОК ИГР */}
       <div className="max-w-5xl mx-auto mt-12 px-4">
         <div className="flex items-center gap-4 mb-8">
            <h2 className="text-4xl font-black text-gray-900 tracking-tight">{tagName}</h2>

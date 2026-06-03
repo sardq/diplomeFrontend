@@ -58,19 +58,16 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 relative overflow-hidden px-4">
-      {/* Декоративные элементы фона (в стиле основной страницы) */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-purple-200 blur-[120px] opacity-30 -ml-20 -mt-20 rounded-full"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-200 blur-[120px] opacity-30 -mr-20 -mb-20 rounded-full"></div>
 
       <div className="bg-white/80 backdrop-blur-xl rounded-[32px] shadow-2xl p-8 md:p-12 max-w-md w-full border border-white/20 relative z-10">
         
-        {/* Заголовок и Лого */}
         <div className="text-center mb-10">
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">С возвращением!</h1>
           <p className="text-gray-500 mt-2 font-medium">Войдите, чтобы получить персональные рекомендации</p>
         </div>
 
-        {/* Вывод ошибки */}
         {error && (
           <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-2xl mb-6 text-sm font-bold flex items-center gap-3 animate-shake">
             <span>⚠️</span> {error}
@@ -113,7 +110,6 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* Дополнительные действия */}
         <div className="mt-8 pt-8 border-t border-gray-100 flex flex-col gap-4">
           <div className="flex justify-between items-center text-sm font-bold">
             <button

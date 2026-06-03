@@ -13,7 +13,6 @@ export default function UserProfileView() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Загружаем основную информацию профиля
     api.get(`/users/public/${userId}`)
       .then(res => {
         setProfile(res.data);
@@ -45,7 +44,6 @@ export default function UserProfileView() {
     <div className="bg-[#fcfcff] min-h-screen pb-20 p-4 md:p-8">
       <div className="max-w-5xl mx-auto space-y-10">
         
-        {/* НАВИГАЦИЯ (стиль как в ProfilePage) */}
         <div className="flex items-center justify-between">
           <button 
             onClick={() => navigate(-1)} 
@@ -56,10 +54,8 @@ export default function UserProfileView() {
           <div className="h-px flex-1 bg-gray-100 mx-8 hidden md:block"></div>
         </div>
 
-        {/* ГЛАВНАЯ КАРТОЧКА ПРОФИЛЯ (Bento Style) */}
         <div className="bg-white rounded-[2.5rem] p-6 md:p-10 border border-gray-100 flex flex-col md:flex-row gap-10 items-center md:items-start transition-all shadow-sm relative overflow-hidden">
           
-          {/* Аватар (логика: фото или первая буква) */}
           <div className="relative flex-shrink-0">
             <div className="w-32 h-32 md:w-40 md:h-40 rounded-[2.5rem] overflow-hidden border border-gray-100 bg-gray-50 shadow-inner">
               {profile.avatarUrl ? (
@@ -72,7 +68,6 @@ export default function UserProfileView() {
             </div>
           </div>
 
-          {/* Инфо */}
           <div className="flex-1 space-y-6 w-full text-center md:text-left">
             <div>
               <h2 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tighter">{profile.username}</h2>
@@ -86,7 +81,6 @@ export default function UserProfileView() {
           </div>
         </div>
 
-        {/* СЕКЦИЯ ОТЗЫВОВ */}
         <div className="space-y-6">
           <h3 className="text-xl font-black text-gray-900 uppercase tracking-widest px-4 italic">
             Обзоры от {profile.username}

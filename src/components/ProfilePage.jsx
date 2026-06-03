@@ -148,7 +148,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* СЕКЦИЯ ИЗБРАННОГО */}
         <div className="space-y-6">
           <div className="flex justify-between items-center px-4">
             <h3 className="text-xl font-black text-gray-900 uppercase tracking-widest italic">❤️ Избранное</h3>
@@ -178,7 +177,6 @@ export default function ProfilePage() {
           )}
         </div>
 
-        {/* СЕКЦИЯ ОТЗЫВОВ */}
         <div className="space-y-6">
           <h3 className="text-xl font-black text-gray-900 uppercase tracking-widest px-4 italic">✍️ Мои отзывы</h3>
           {reviews.length === 0 ? (
