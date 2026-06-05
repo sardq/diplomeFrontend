@@ -13,6 +13,7 @@ export default function UserProfileView() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Загружаем данные публичного профиля
     api.get(`/users/public/${userId}`)
       .then(res => {
         setProfile(res.data);
@@ -44,6 +45,7 @@ export default function UserProfileView() {
     <div className="bg-[#fcfcff] min-h-screen pb-20 p-4 md:p-8">
       <div className="max-w-5xl mx-auto space-y-10">
         
+        {/* Кнопка Назад */}
         <div className="flex items-center justify-between">
           <button 
             onClick={() => navigate(-1)} 
@@ -54,33 +56,45 @@ export default function UserProfileView() {
           <div className="h-px flex-1 bg-gray-100 mx-8 hidden md:block"></div>
         </div>
 
-        <div className="bg-white rounded-[2.5rem] p-6 md:p-10 border border-gray-100 flex flex-col md:flex-row gap-10 items-center md:items-start transition-all shadow-sm relative overflow-hidden">
+        {/* ШАПКА ПРОФИЛЯ (Стиль как в ProfilePage) */}
+        <div className="bg-white rounded-[2rem] p-6 md:p-10 border border-gray-100 flex flex-col md:flex-row gap-10 items-center md:items-start transition-all shadow-sm">
           
+          {/* Аватар (Логика как в ProfilePage) */}
           <div className="relative flex-shrink-0">
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-[2.5rem] overflow-hidden border border-gray-100 bg-gray-50 shadow-inner">
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-[2.5rem] overflow-hidden border border-gray-100 bg-gray-50 shadow-sm">
               {profile.avatarUrl ? (
+                // Если URL есть, показываем картинку
                 <img src={profile.avatarUrl} className="w-full h-full object-cover" alt="avatar" />
               ) : (
-                <div className="w-full h-full bg-purple-50 flex justify-center items-center text-purple-600 text-6xl font-black">
-                  {profile.username[0].toUpperCase()}
+                // Если URL нет, показываем первую букву (заглушка)
+                <div className="w-full h-full bg-purple-50 flex justify-center items-center text-purple-600 text-6xl font-black uppercase">
+                  {profile.username[0]}
                 </div>
               )}
             </div>
           </div>
 
-          <div className="flex-1 space-y-6 w-full text-center md:text-left">
+          {/* Инфо */}
+          <div className="flex-1 space-y-4 w-full text-center md:text-left">
             <div>
               <h2 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tighter">{profile.username}</h2>
-              <div className="flex justify-center md:justify-start mt-2">
-                <span className="inline-block px-3 py-1 bg-purple-50 text-purple-600 text-[10px] font-black rounded-full uppercase tracking-wider border border-purple-100">
+              <div className="flex justify-center md:justify-start mt-3">
+                <span className="inline-block px-4 py-1.5 bg-purple-50 text-purple-600 text-[10px] font-black rounded-full uppercase tracking-widest border border-purple-100 shadow-sm">
                    🎮 Игрок сообщества
                 </span>
               </div>
             </div>
-
+            
+            {/* Дополнительная декоративная линия */}
+            <div className="h-px w-full bg-gray-50"></div>
+            
+            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+              Публичный профиль
+            </p>
           </div>
         </div>
 
+        {/* Секция отзывов */}
         <div className="space-y-6">
           <h3 className="text-xl font-black text-gray-900 uppercase tracking-widest px-4 italic">
             Обзоры от {profile.username}

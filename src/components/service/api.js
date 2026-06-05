@@ -21,20 +21,20 @@ api.interceptors.request.use((config) => {
 }, (error) => {
     return Promise.reject(error);
 });
-api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    if (error.response && error.response.status === 401) {
+// api.interceptors.response.use(
+//   (response) => {
+//     return response;
+//   },
+//   (error) => {
+//     if (error.response && error.response.status === 401) {
       
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
+//       localStorage.removeItem("token");
+//       localStorage.removeItem("userId");
       
-      window.location.href = "/"; 
-    }
+//       window.location.href = "/"; 
+//     }
     
-    return Promise.reject(error);
-  }
-);
+//     return Promise.reject(error);
+//   }
+// );
 export default api;

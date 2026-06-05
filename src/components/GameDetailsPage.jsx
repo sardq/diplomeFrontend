@@ -1,439 +1,183 @@
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import api from "./service/api";
+import { GameHeader } from "./GameHeader";
+import { GameMedia } from "./GameMedia";
+import { GameReviewsList } from "./GameReviewsList";
+import { GameNews } from "./GameNews"; 
 
-export default function HomePage() {
-  const [popularGames, setPopularGames] = useState([]);
-  const [recommendedTags, setRecommendedTags] = useState([]); 
-  const [generalTags, setGeneralTags] = useState([]);        
-  const [allTags, setAllTags] = useState([]);
-  const [gamesByTag, setGamesByTag] = useState({});
-  const [loadedCounts, setLoadedCounts] = useState({});
-  const [recommendedPage, setRecommendedPage] = useState(0);
-  const [generalPage, setGeneralPage] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [showTagFilter, setShowTagFilter] = useState(false);
-  const [tagSearchTerm, setTagSearchTerm] = useState("");
-  const [filteredTags, setFilteredTags] = useState([]);
-  const [showAllTags, setShowAllTags] = useState(false);
-  
-  const [recommendations, setRecommendations] = useState([]);
-  const [hasPreferences, setHasPreferences] = useState(true);
-  const [isRecalculating, setIsRecalculating] = useState(false);
-  const [isColdStart, setIsColdStart] = useState(false);
-
-  const tagSize = 5;
-  const initialGameLoad = 5;
-  const effectRan = useRef(false);
-
-  const navigate = useNavigate();
+export default function GameDetailsPage() {
+  const { id } = useParams();
   const token = localStorage.getItem("token");
   const isAuth = !!token;
+  const navigate = useNavigate();
 
-  const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
-
-  // === ЭФФЕКТЫ И ЗАГРУЗКА ===
-  useEffect(() => { 
-    if (isAuth) { 
-      loadRecommendations(); 
-      checkUserPreferences(); 
-    } 
-  }, [isAuth]);
-
-  const loadRecommendations = () => {
-    api.get(`/recommendations/user`, authHeaders)
-      .then((res) => {
-        const recs = res.data || [];
-        setRecommendations(recs);
-        // Если у первой игры нет matchPercentage (или он равен 0), значит бэкенд выдал Cold Start
-        if (recs.length > 0 && (!recs[0].matchPercentage || recs[0].matchPercentage === 0)) {
-          setIsColdStart(true);
-        } else {
-          setIsColdStart(false);
-        }
-      })
-      .catch((err) => console.error("Ошибка загрузки рекомендаций:", err));
-  };
-
-  const checkUserPreferences = () => {
-    api.get(`/preferences/user/has-preferences`, authHeaders)
-      .then((res) => setHasPreferences(res.data))
-      .catch(() => setHasPreferences(false));
-  };
-
-  const handleRecalculate = async () => {
-    setIsRecalculating(true);
-    try {
-      await api.post(`/recommendations/recalculate`, {}, authHeaders);
-      await loadRecommendations();
-      await checkUserPreferences();
-      setRecommendedTags([]);
-      setRecommendedPage(0);
-      loadRecommendedTags(0);
-    } catch (err) { console.error(err); } finally { setIsRecalculating(false); }
-  };
+  const [game, setGame] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [userReview, setUserReview] = useState("");
+  const [editRating, setEditRating] = useState(0);
+  const [editReview, setEditReview] = useState("");
+  const [reviews, setReviews] = useState([]);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const pageSize = 5;
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
-    if (!tagSearchTerm.trim()) {
-      setFilteredTags(allTags); 
-      return;
+    if (isAuth) {
+      api.get("/auth/me").then(res => setCurrentUserId(res.data.id)).catch(console.error);
     }
-    const timeout = setTimeout(() => {
-    api.get(`/tags/search?search=${encodeURIComponent(tagSearchTerm)}&size=20`)
-      .then((res) => setFilteredTags(res.data || []))
-      .catch(console.error);
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [tagSearchTerm, allTags]);
-
-  const loadPopularGames = (size = initialGameLoad) => {
-    api.get(`/games/popular?size=${size}`).then((res) => setPopularGames(res.data));
-  };
-
-  const loadRecommendedTags = (page = 0) => {
-    if (!isAuth) return;
-    api.get(`/tags/recommended?page=${page}&size=${tagSize}`, authHeaders)
-      .then((res) => {
-        const newTags = res.data.content || res.data || [];
-        setRecommendedTags((prev) => {
-            const ids = new Set(prev.map(t => t.id));
-            return [...prev, ...newTags.filter(t => !ids.has(t.id))];
-        });
-        processNewTags(newTags);
-      });
-  };
-
-  const loadGeneralTags = (page = 0) => {
-    api.get(`/tags?page=${page}&size=${tagSize}`)
-      .then((res) => {
-        const newTags = res.data.content || res.data || [];
-        setGeneralTags((prev) => {
-            const ids = new Set(prev.map(t => t.id));
-            return [...prev, ...newTags.filter(t => !ids.has(t.id))];
-        });
-        processNewTags(newTags);
-      });
-  };
-
-  const processNewTags = (newTags) => {
-    if (!newTags.length) return;
-    const initialCounts = {};
-    newTags.forEach((tag) => {
-        initialCounts[tag.id] = initialGameLoad;
-        loadGamesByTag(tag.id, initialGameLoad);
-    });
-    setLoadedCounts((prev) => ({ ...prev, ...initialCounts }));
-  };
-
-  const loadAllTags = () => {
-    api.get(`/tags?page=0&size=40`).then((res) => {
-      const tags = res.data.content || res.data || [];
-      setAllTags(tags);
-      setFilteredTags(tags);
-    });
-  };
-
-  useEffect(() => {
-    if (effectRan.current) return;
-    loadPopularGames();
-    loadGeneralTags(0);
-    if (isAuth) loadRecommendedTags(0);
-    loadAllTags();
-    effectRan.current = true;
   }, [isAuth]);
 
-  const loadGamesByTag = (tagId, size) => {
-    api.get(`/games/tag/${tagId}?page=0&size=${size}`)
-      .then((res) => setGamesByTag((prev) => ({ ...prev, [tagId]: res.data })));
+  useEffect(() => {
+    loadGame();
+    if (isAuth) {
+      loadUserReviewAndRating();
+      loadFavorite();
+      sendView();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (currentUserId !== null || !isAuth) {
+      loadReviews(0, false);
+    }
+  }, [id, currentUserId, isAuth]);
+
+  const loadGame = async () => {
+    try {
+      setGame(null);
+      await api.post(`/games/load/${id}`);
+      const res = await api.get(`/games/${id}`);
+      setGame(res.data);
+      console.log("Game details loaded:", res.data);
+    } catch (e) { console.error(e); }
   };
 
-  const addMoreGames = (tagId) => {
-    const newCount = (loadedCounts[tagId] || initialGameLoad) + 5;
-    setLoadedCounts((prev) => ({ ...prev, [tagId]: newCount }));
-    loadGamesByTag(tagId, newCount);
+  const loadFavorite = () => {
+    api.get(`/interactions/favorite`, { params: { gameId: id }, headers: { Authorization: `Bearer ${token}` } })
+      .then(res => setIsFavorite(res.data)).catch(console.error);
   };
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    if (!e.target.value.trim()) return setSearchResults([]);
-    api.get(`/games/filter?search=${encodeURIComponent(e.target.value)}`)
-      .then((res) => setSearchResults(res.data));
+  const sendView = () => {
+    api.post(`/interactions/view`, null, { params: { gameId: id }, headers: isAuth ? { Authorization: `Bearer ${token}` } : {} }).catch(console.error);
   };
 
-  // === КОМПОНЕНТЫ ОТОБРАЖЕНИЯ ===
+  const loadReviews = (pageToLoad = 0, append = false) => {
+  api.get(`/interactions/reviews/game/${id}`, {
+    params: { page: pageToLoad, size: pageSize }
+  })
+  .then(res => {
+    const data = res.data || [];
+    // ТЕПЕРЬ СРАВНИВАЕМ authorId с currentUserId
+    const otherReviews = data.filter(r => !isAuth || r.authorId !== currentUserId);
 
-  const GameCard = ({ game }) => {
-    const handleClick = (e) => {
-      if (e.target.closest(".rating-link")) return;
-      navigate(`/games/${game.gameId || game.id}`);
-    };
+    setReviews(prev => append ? [...prev, ...otherReviews] : otherReviews);
+    setHasMore(data.length === pageSize);
+  })
+  .catch(console.error);
+};
 
-    return (
-      <div 
-        onClick={handleClick} 
-        className="bg-white rounded-[1.5rem] shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 p-3 cursor-pointer relative group border border-gray-100"
-      >
-        {/* Бейдж процента совпадения показывается ТОЛЬКО если это не холодный старт */}
-        {game.matchPercentage > 0 && !isColdStart && (
-          <div className="absolute top-4 right-4 bg-green-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg z-10 animate-pulse uppercase tracking-wider">
-            {game.matchPercentage}% match
-          </div>
-        )}
-        
-        <div className="overflow-hidden rounded-xl mb-3 aspect-[3/4]">
-            <img 
-              src={game.posterUrl} 
-              alt={game.name} 
-              className="w-full h-full object-cover group-hover:scale-110 transition duration-700" 
-            />
-        </div>
-
-        <h3 className="font-bold text-sm text-gray-800 truncate mb-2 group-hover:text-purple-600 transition-colors px-1 uppercase tracking-tighter">
-          {game.name}
-        </h3>
-        
-        <div className="flex items-center justify-between border-t pt-2 border-gray-50 px-1">
-          <div className="flex items-center gap-1 text-[11px] font-black text-yellow-500">
-            <span>⭐</span>
-            <span>{game.rating}</span>
-          </div>
-
-          {game.localRating > 0 && (
-            <div className="flex items-center gap-1 text-[11px] font-black text-purple-500 bg-purple-50 px-2 py-0.5 rounded-lg">
-              <span>💎</span>
-              <span>{game.localRating?.toFixed(1)}</span>
-            </div>
-          )}
-        </div>
-      </div>
-    );
+  const loadUserReviewAndRating = () => {
+    api.get(`/interactions/review/user/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => {
+        if (res.data) {
+          setUserRating(res.data.rating);
+          setUserReview(res.data.review || "");
+          setEditRating(res.data.rating || 0);
+          setEditReview(res.data.review || "");
+        }
+      }).catch(console.error);
   };
 
-  const renderTagSection = (tag, isRecommended = false) => {
-    const games = gamesByTag[tag.id] || [];
-    const loadedCount = loadedCounts[tag.id] || initialGameLoad;
-
-    return (
-      <section key={tag.id} className="space-y-6">
-        <div className="flex justify-between items-center px-2">
-          <h2 className="text-2xl font-black text-gray-900 capitalize flex items-center gap-3 tracking-tighter italic">
-            {tag.nameRu || tag.name}
-            {isRecommended && (
-              <span className="text-[9px] bg-purple-600 text-white px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-purple-200">
-                Твой жанр
-              </span>
-            )}
-          </h2>
-          <button 
-            onClick={() => navigate(`/games?tag=${tag.slug}`)}
-            className="text-[10px] font-black text-purple-600 uppercase tracking-widest hover:text-purple-800 transition"
-          >
-            Все в категории →
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          {games.map((game) => (
-            <GameCard key={`${tag.id}-${game.id}`} game={game} />
-          ))}
-        </div>
-
-        {loadedCount < 15 && (
-          <div className="flex justify-center">
-            <button 
-              onClick={() => addMoreGames(tag.id)} 
-              className="text-gray-300 hover:text-purple-600 transition-all text-2xl p-2 hover:bg-purple-50 rounded-full"
-            >
-              ⌄
-            </button>
-          </div>
-        )}
-      </section>
-    );
+  const handleReaction = (reviewId, type) => {
+    if (!isAuth) return;
+    api.post(`/interactions/reviews/${reviewId}/react`, null, { params: { typeString: type }, headers: { Authorization: `Bearer ${token}` } })
+      .then(() => loadReviews(page, false)).catch(console.error);
   };
+
+  const toggleFavorite = () => {
+    if (!isAuth) return;
+    const request = isFavorite 
+      ? api.delete(`/interactions/favorite`, { params: { gameId: id }, headers: { Authorization: `Bearer ${token}` } })
+      : api.post(`/interactions/favorite`, null, { params: { gameId: id }, headers: { Authorization: `Bearer ${token}` } });
+    request.then(() => setIsFavorite(!isFavorite)).catch(console.error);
+  };
+
+  const saveReviewAndRating = () => {
+    if (!isAuth) return;
+    const requests = [
+      api.post(`/interactions/rate`, null, { params: { gameId: id, rating: editRating }, headers: { Authorization: `Bearer ${token}` } }),
+      api.post(`/interactions/review`, null, { params: { gameId: id, review: editReview }, headers: { Authorization: `Bearer ${token}` } })
+    ];
+    Promise.all(requests).then(() => loadUserReviewAndRating()).catch(console.error);
+  };
+
+  if (!game) return <div className="flex justify-center items-center h-64 text-gray-500 lg text-lg">Загрузка игры...</div>;
 
   return (
-    <div className="bg-[#fcfcff] min-h-screen pb-20">
+    <div className="max-w-5xl mx-auto p-6 space-y-10">
       
-      {/* СТИКИ ХЕДЕР */}
-      <div className="bg-white/90 backdrop-blur-xl sticky top-0 z-40 border-b border-gray-100 mb-8 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="relative w-full md:w-2/3 group">
-            <span className="absolute left-4 top-3.5 text-gray-400 group-focus-within:text-purple-500 transition-colors">🔍</span>
-            <input
-                type="text"
-                value={searchTerm}
-                onChange={handleSearch}
-                placeholder="Поиск по 50,000+ играм..."
-                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-purple-100 outline-none transition font-bold text-gray-700"
-            />
-          </div>
-          
-          <button 
-            onClick={() => setShowTagFilter(!showTagFilter)} 
-            className={`px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all w-full md:w-auto shadow-sm active:scale-95 ${
-              showTagFilter ? 'bg-gray-900 text-white shadow-xl' : 'bg-white text-gray-600 border border-gray-200 hover:bg-purple-50 hover:text-purple-600'
-            }`}
-          >
-            {showTagFilter ? '✕ Закрыть фильтр' : 'Жанры и теги'}
-          </button>
-        </div>
-      </div>
+      <GameHeader 
+        game={game} 
+        isFavorite={isFavorite} 
+        toggleFavorite={toggleFavorite} 
+        isAuth={isAuth} 
+        navigate={navigate} 
+      />
 
-      <div className="max-w-7xl mx-auto px-6 space-y-16">
-        
-        {/* ТЕГ-ФИЛЬТР */}
-        {showTagFilter && (
-          <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl border border-gray-100 animate-slide-down relative z-20">
-              <div className="flex justify-between items-center mb-6 px-2">
-                <h3 className="font-black text-gray-900 uppercase tracking-widest text-[10px]">Быстрый выбор категории</h3>
-                <div className="h-px flex-1 bg-gray-50 mx-6"></div>
-              </div>
-              
-              <input
-                  type="text"
-                  placeholder="Начните вводить название (например: Action, Хоррор)..."
-                  value={tagSearchTerm}
-                  onChange={(e) => setTagSearchTerm(e.target.value)}
-                  className="w-full px-6 py-4 bg-gray-50 rounded-2xl mb-8 outline-none focus:bg-white border border-transparent focus:border-purple-200 transition font-bold"
-              />
+      <GameMedia 
+        screenshotUrls={game.screenshotUrls} 
+        trailerUrls={game.trailerUrls} 
+        walkthroughUrls={game.walkthroughUrls}
+      />
+      <GameNews articles={game.news} />
 
-              <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                  <span onClick={() => {navigate(`/games?tag=popular`); setShowTagFilter(false)}} 
-                        className="px-5 py-2.5 rounded-xl text-[10px] font-black bg-orange-50 text-orange-600 border border-orange-100 hover:bg-orange-600 hover:text-white transition-all cursor-pointer uppercase tracking-widest shadow-sm">
-                        🔥 Популярное
-                  </span>
-                  
-                  {filteredTags.length > 0 ? (
-                    filteredTags.map((tag) => (
-                      <span key={tag.id} onClick={() => {navigate(`/games?tag=${tag.slug}`); setShowTagFilter(false)}} 
-                            className="px-5 py-2.5 rounded-xl text-[10px] font-black bg-gray-50 text-gray-500 border border-transparent hover:bg-purple-50 hover:text-purple-600 hover:border-purple-200 transition-all cursor-pointer uppercase tracking-widest">
-                          {tag.nameRu || tag.name}
-                      </span>
-                    ))
-                  ) : (
-                    <p className="text-gray-400 text-xs font-bold uppercase tracking-widest p-4">Теги не найдены...</p>
-                  )}
-              </div>
-          </div>
-        )}
-
-        {/* БАННЕР ОПРОСА (Только для новых юзеров) */}
-        {isAuth && !hasPreferences && (
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-700 p-8 md:p-12 rounded-[3rem] shadow-2xl shadow-purple-200/50 flex flex-col md:flex-row justify-between items-center text-white gap-8 border-4 border-white/20 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-            <div className="text-center md:text-left relative z-10">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] mb-2 block text-purple-200">System Calibration</span>
-              <h2 className="text-4xl md:text-5xl font-black mb-3 tracking-tighter italic">Обучи нейросеть!</h2>
-              <p className="opacity-90 font-medium text-lg max-w-xl">Пройди короткий опрос, чтобы гибридный алгоритм подобрал игры специально под твой вкус.</p>
+      {/* 3. Твой отзыв */}
+      <div className="space-y-6">
+        {isAuth && (
+          <div className="bg-white p-5 rounded-xl shadow border-l-4 border-purple-500">
+            <p className="font-bold mb-3 text-gray-800">Оцените игру:</p>
+            <div className="flex gap-3 text-4xl mb-4">
+              {[1, 2, 3, 4, 5].map(num => (
+                <span key={num} onClick={() => setEditRating(num)} className={`cursor-pointer transition-colors ${num <= editRating ? "text-yellow-400" : "text-gray-200"}`}>★</span>
+              ))}
             </div>
-            <button onClick={() => navigate("/preferences/intro")} className="px-12 py-5 bg-white text-purple-700 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] hover:scale-105 transition-transform shadow-xl whitespace-nowrap relative z-10">
-              НАЧАТЬ НАСТРОЙКУ
+            <textarea
+              value={editReview}
+              onChange={(e) => setEditReview(e.target.value)}
+              className="w-full border border-gray-200 rounded-xl p-4 focus:ring-2 focus:ring-purple-400 outline-none transition"
+              rows={4}
+              placeholder="Поделитесь вашим мнением об игре..."
+            />
+            <button onClick={saveReviewAndRating} className="mt-3 px-6 py-2 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition disabled:opacity-50" disabled={!editReview.trim() && !editRating}>
+              Сохранить отзыв
             </button>
           </div>
         )}
 
-        {/* РЕЗУЛЬТАТЫ ПОИСКА */}
-        {searchTerm ? (
-          <section className="space-y-8">
-            <h2 className="text-3xl font-black text-gray-900 border-l-8 border-purple-500 pl-4 uppercase tracking-tighter italic">Результаты поиска</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-              {searchResults.length > 0 ? searchResults.map(game => <GameCard key={game.id} game={game} />) : <p className="text-gray-400 font-bold uppercase text-xs p-10 text-center w-full tracking-widest">Ничего не найдено...</p>}
+        {isAuth && (userReview || userRating) && (
+          <div className="bg-purple-50 p-5 rounded-xl border border-purple-100 shadow-sm">
+            <p className="font-bold text-purple-800 mb-2">Ваша опубликованная оценка:</p>
+            <div className="flex gap-1 text-2xl mb-2">
+              {[1, 2, 3, 4, 5].map(num => <span key={num} className={num <= userRating ? "text-yellow-500" : "text-gray-300"}>★</span>)}
             </div>
-          </section>
-        ) : (
-          <>
-            {/* ГЛАВНЫЕ РЕКОМЕНДАЦИИ */}
-            {isAuth && recommendations.length > 0 && (
-              <section className={`p-8 md:p-12 rounded-[3rem] shadow-2xl relative overflow-hidden transition-colors duration-500 ${isColdStart ? 'bg-gray-800' : 'bg-gray-900 border border-gray-800'}`}>
-                {!isColdStart && <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600 blur-[150px] opacity-20 -mr-20 -mt-20"></div>}
-                
-                <div className="relative z-10">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
-                    <div>
-                      <span className={`font-black text-[10px] uppercase tracking-[0.4em] mb-3 block ${isColdStart ? 'text-gray-400' : 'text-purple-400'}`}>
-                        {isColdStart ? "Global Hits (Cold Start)" : "Personalized For You"}
-                      </span>
-                      <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter italic">
-                        {isColdStart ? "Популярно в сети" : "Твоя подборка"}
-                      </h2>
-                    </div>
-                    
-                    <button onClick={() => navigate("/recommendations")} className="text-gray-400 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-colors bg-white/10 px-6 py-3 rounded-xl hover:bg-white/20">
-                      Архив подборок →
-                    </button>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
-                    {recommendations.slice(0, 5).map(game => <GameCard key={game.id} game={game} />)}
-                  </div>
-
-                  {/* Панель пересчета показывается только если есть предпочтения */}
-                  {hasPreferences && (
-                    <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
-                      <p className="text-white/60 text-xs font-bold uppercase tracking-widest text-center md:text-left">
-                        Лента обновляется на основе твоей активности
-                      </p>
-                      <button
-                        onClick={handleRecalculate}
-                        disabled={isRecalculating}
-                        className={`px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 ${
-                          isRecalculating ? "bg-gray-700 cursor-wait text-gray-500" : "bg-purple-600 text-white hover:bg-purple-500 shadow-xl shadow-purple-500/20"
-                        }`}
-                      >
-                        {isRecalculating ? "Анализируем..." : "🔄 ПЕРЕСЧИТАТЬ ПОДБОРКУ"}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </section>
-            )}
-
-            {/* ПОПУЛЯРНОЕ */}
-            <section className="space-y-10">
-              <h2 className="text-3xl font-black text-gray-900 flex items-center gap-4 tracking-tighter uppercase italic px-2">
-                <span className="bg-orange-50 text-orange-500 p-2 rounded-xl border border-orange-100 text-2xl">🔥</span> 
-                Популярные новинки
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
-                {popularGames.map(game => <GameCard key={game.id} game={game} />)}
-              </div>
-              <div className="flex justify-center pt-4">
-                 <button onClick={() => navigate("/games?popular")} className="px-14 py-4 bg-white border border-gray-200 text-gray-400 rounded-full font-black text-[10px] tracking-widest uppercase hover:bg-gray-900 hover:text-white transition-all shadow-sm active:scale-95">
-                    Смотреть весь каталог
-                 </button>
-              </div>
-            </section>
-
-            {/* ПЕРСОНАЛЬНЫЕ ТЕГИ */}
-            {isAuth && recommendedTags.length > 0 && (
-              <div className="space-y-24 py-16 border-t border-gray-100">
-                {recommendedTags.map(tag => renderTagSection(tag, true))}
-                <div className="flex justify-center">
-                  <button onClick={() => {setRecommendedPage(p => p+1); loadRecommendedTags(recommendedPage+1)}} className="px-10 py-4 bg-purple-50 text-purple-600 rounded-full font-black text-[10px] tracking-widest uppercase hover:bg-purple-100 transition-colors border border-purple-100">
-                      Больше из моих жанров
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ОБЩИЕ КАТЕГОРИИ */}
-            <div className="space-y-24 pt-16 border-t border-gray-100">
-              <h2 className="text-3xl font-black text-gray-400 uppercase tracking-[0.4em] text-center mb-12">Каталог жанров</h2>
-              {generalTags
-                  .filter(gt => !recommendedTags.find(rt => rt.id === gt.id))
-                  .map(tag => renderTagSection(tag, false))
-              }
-              <div className="flex justify-center">
-                <button onClick={() => {setGeneralPage(p => p+1); loadGeneralTags(generalPage+1)}} className="px-12 py-4 bg-gray-100 text-gray-500 rounded-full font-black text-[10px] tracking-widest hover:bg-gray-200 transition-all uppercase shadow-sm active:scale-95">
-                  Загрузить ещё категории
-                </button>
-              </div>
-            </div>
-          </>
+            {userReview && <p className="text-gray-700 italic">"{userReview}"</p>}
+          </div>
         )}
       </div>
+
+      {/* 4. Другие отзывы */}
+      <GameReviewsList 
+        reviews={reviews} 
+        handleReaction={handleReaction} 
+        hasMore={hasMore} 
+        navigate={navigate} 
+        loadMore={() => { setPage(p => p + 1); loadReviews(page + 1, true); }} 
+      />
+
     </div>
   );
 }

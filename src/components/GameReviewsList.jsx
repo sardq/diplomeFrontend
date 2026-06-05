@@ -36,7 +36,7 @@ export const GameReviewsList = ({ reviews, handleReaction, hasMore, loadMore }) 
                 >
                   {review.avatarUrl ? (
                     <img 
-                      src={review.avatarUrl} 
+                      src={review.authorAvatar} 
                       className="w-12 h-12 rounded-2xl object-cover border border-gray-50 group-hover:scale-105 transition-transform" 
                       alt={review.login} 
                     />
