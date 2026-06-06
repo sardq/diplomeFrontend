@@ -256,7 +256,6 @@ export default function HomePage() {
   return (
     <div className="bg-[#fcfcff] min-h-screen pb-20">
       
-      {/* СТИКИ ХЕДЕР */}
       <div className="bg-white/90 backdrop-blur-xl sticky top-0 z-40 border-b border-gray-100 mb-8 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="relative w-full md:w-2/3 group">
@@ -283,7 +282,6 @@ export default function HomePage() {
 
       <div className="max-w-7xl mx-auto px-6 space-y-16">
         
-        {/* ТЕГ-ФИЛЬТР */}
         {showTagFilter && (
           <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl border border-gray-100 animate-slide-down relative z-20">
               <div className="flex justify-between items-center mb-6 px-2">
@@ -319,13 +317,12 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* БАННЕР ОПРОСА (Только для новых юзеров) */}
         {isAuth && !hasPreferences && (
           <div className="bg-gradient-to-r from-purple-600 to-indigo-700 p-8 md:p-12 rounded-[3rem] shadow-2xl shadow-purple-200/50 flex flex-col md:flex-row justify-between items-center text-white gap-8 border-4 border-white/20 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl -mr-20 -mt-20"></div>
             <div className="text-center md:text-left relative z-10">
               <span className="text-[10px] font-black uppercase tracking-[0.4em] mb-2 block text-purple-200">System Calibration</span>
-              <h2 className="text-4xl md:text-5xl font-black mb-3 tracking-tighter italic">Обучи нейросеть!</h2>
+              <h2 className="text-4xl md:text-5xl font-black mb-3 tracking-tighter italic">Улучши свои рекомендации!</h2>
               <p className="opacity-90 font-medium text-lg max-w-xl">Пройди короткий опрос, чтобы гибридный алгоритм подобрал игры специально под твой вкус.</p>
             </div>
             <button onClick={() => navigate("/preferences/intro")} className="px-12 py-5 bg-white text-purple-700 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] hover:scale-105 transition-transform shadow-xl whitespace-nowrap relative z-10">
@@ -334,7 +331,6 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* РЕЗУЛЬТАТЫ ПОИСКА */}
         {searchTerm ? (
           <section className="space-y-8">
             <h2 className="text-3xl font-black text-gray-900 border-l-8 border-purple-500 pl-4 uppercase tracking-tighter italic">Результаты поиска</h2>
@@ -344,51 +340,52 @@ export default function HomePage() {
           </section>
         ) : (
           <>
-            {/* ГЛАВНЫЕ РЕКОМЕНДАЦИИ */}
-            {isAuth && recommendations.length > 0 && (
-              <section className={`p-8 md:p-12 rounded-[3rem] shadow-2xl relative overflow-hidden transition-colors duration-500 ${isColdStart ? 'bg-gray-800' : 'bg-gray-900 border border-gray-800'}`}>
-                {!isColdStart && <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600 blur-[150px] opacity-20 -mr-20 -mt-20"></div>}
-                
-                <div className="relative z-10">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
-                    <div>
-                      <span className={`font-black text-[10px] uppercase tracking-[0.4em] mb-3 block ${isColdStart ? 'text-gray-400' : 'text-purple-400'}`}>
-                        {isColdStart ? "Global Hits (Cold Start)" : "Personalized For You"}
-                      </span>
-                      <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter italic">
-                        {isColdStart ? "Популярно в сети" : "Твоя подборка"}
-                      </h2>
-                    </div>
-                    
-                    <button onClick={() => navigate("/recommendations")} className="text-gray-400 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-colors bg-white/10 px-6 py-3 rounded-xl hover:bg-white/20">
-                      Архив подборок →
-                    </button>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
-                    {recommendations.slice(0, 5).map(game => <GameCard key={game.id} game={game} />)}
-                  </div>
+            {isAuth && hasPreferences && !isColdStart && recommendations.length > 0 && (
+  <section className="p-8 md:p-12 rounded-[3rem] shadow-2xl relative overflow-hidden transition-colors duration-500 bg-gray-900 border border-gray-800">
+    <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600 blur-[150px] opacity-20 -mr-20 -mt-20"></div>
+    
+    <div className="relative z-10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
+        <div>
+          <span className="font-black text-[10px] uppercase tracking-[0.4em] mb-3 block text-purple-400">
+            Personalized For You
+          </span>
+          <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter italic">
+            Твоя подборка
+          </h2>
+        </div>
+        
+        <button onClick={() => navigate("/recommendations")} className="text-gray-400 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-colors bg-white/10 px-6 py-3 rounded-xl hover:bg-white/20">
+          Архив подборок →
+        </button>
+      </div>
+      
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+        {recommendations.slice(0, 5).map(game => (
+          <GameCard 
+            key={`rec-${game.gameId || game.id}`} 
+            game={game} 
+          />
+        ))}
+      </div>
 
-                  {/* Панель пересчета показывается только если есть предпочтения */}
-                  {hasPreferences && (
-                    <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
-                      <p className="text-white/60 text-xs font-bold uppercase tracking-widest text-center md:text-left">
-                        Лента обновляется на основе твоей активности
-                      </p>
-                      <button
-                        onClick={handleRecalculate}
-                        disabled={isRecalculating}
-                        className={`px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 ${
-                          isRecalculating ? "bg-gray-700 cursor-wait text-gray-500" : "bg-purple-600 text-white hover:bg-purple-500 shadow-xl shadow-purple-500/20"
-                        }`}
-                      >
-                        {isRecalculating ? "Анализируем..." : "🔄 ПЕРЕСЧИТАТЬ ПОДБОРКУ"}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </section>
-            )}
+      <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
+        <p className="text-white/60 text-xs font-bold uppercase tracking-widest text-center md:text-left">
+          Лента обновляется на основе твоей активности
+        </p>
+        <button
+          onClick={handleRecalculate}
+          disabled={isRecalculating}
+          className={`px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 ${
+            isRecalculating ? "bg-gray-700 cursor-wait text-gray-500" : "bg-purple-600 text-white hover:bg-purple-500 shadow-xl shadow-purple-500/20"
+          }`}
+        >
+          {isRecalculating ? "Анализируем..." : "🔄 ПЕРЕСЧИТАТЬ ПОДБОРКУ"}
+        </button>
+      </div>
+    </div>
+  </section>
+)}
 
             {/* ПОПУЛЯРНОЕ */}
             <section className="space-y-10">
